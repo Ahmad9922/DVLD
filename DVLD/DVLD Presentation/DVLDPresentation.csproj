@@ -1,0 +1,592 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6A46EA36-0ED2-45F7-A1F4-D3C3545F9696}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>DVLD</RootNamespace>
+    <AssemblyName>DVLD</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Guna.UI2, Version=2.0.4.6, Culture=neutral, PublicKeyToken=8b9d14aa5142e261, processorArchitecture=MSIL">
+      <HintPath>packages\Guna.UI2.WinForms.2.0.4.6\lib\net472\Guna.UI2.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="clsGeneralProperties.cs" />
+    <Compile Include="frmDetainedLicenses.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmDetainedLicenses.Designer.cs">
+      <DependentUpon>frmDetainedLicenses.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmDetainLicense.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmDetainLicense.Designer.cs">
+      <DependentUpon>frmDetainLicense.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmInternationalDLApplications.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmInternationalDLApplications.Designer.cs">
+      <DependentUpon>frmInternationalDLApplications.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmIssueInternationalDrivingLicense.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmIssueInternationalDrivingLicense.Designer.cs">
+      <DependentUpon>frmIssueInternationalDrivingLicense.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmLicenseCard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmLicenseCard.Designer.cs">
+      <DependentUpon>frmLicenseCard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmLicenseHistory.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmLicenseHistory.Designer.cs">
+      <DependentUpon>frmLicenseHistory.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Applications Form\frmLocalDLACard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Applications Form\frmLocalDLACard.Designer.cs">
+      <DependentUpon>frmLocalDLACard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmReleaseDetainedLicense.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmReleaseDetainedLicense.Designer.cs">
+      <DependentUpon>frmReleaseDetainedLicense.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmRenewDrivingLicense.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmRenewDrivingLicense.Designer.cs">
+      <DependentUpon>frmRenewDrivingLicense.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmReplacementLicense.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmReplacementLicense.Designer.cs">
+      <DependentUpon>frmReplacementLicense.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Schedule Tests Forms\frmAddAndUpdateTestAppointment.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Schedule Tests Forms\frmAddAndUpdateTestAppointment.Designer.cs">
+      <DependentUpon>frmAddAndUpdateTestAppointment.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmDrivers.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmDrivers.Designer.cs">
+      <DependentUpon>frmDrivers.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmIssueDrivingLicense.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmIssueDrivingLicense.Designer.cs">
+      <DependentUpon>frmIssueDrivingLicense.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Applications Form\frmLDLApplications.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Applications Form\frmLDLApplications.Designer.cs">
+      <DependentUpon>frmLDLApplications.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Applications Form\frmManageApplicationTypes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Applications Form\frmManageApplicationTypes.Designer.cs">
+      <DependentUpon>frmManageApplicationTypes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmManageTestTypes.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmManageTestTypes.Designer.cs">
+      <DependentUpon>frmManageTestTypes.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Applications Form\frmAddAndUpdateLocalDLA.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Applications Form\frmAddAndUpdateLocalDLA.Designer.cs">
+      <DependentUpon>frmAddAndUpdateLocalDLA.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Schedule Tests Forms\frmTakeTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Schedule Tests Forms\frmTakeTest.Designer.cs">
+      <DependentUpon>frmTakeTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Schedule Tests Forms\frmTestAppointment.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Schedule Tests Forms\frmTestAppointment.Designer.cs">
+      <DependentUpon>frmTestAppointment.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Applications Form\frmUpdateApplicationType.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Applications Form\frmUpdateApplicationType.Designer.cs">
+      <DependentUpon>frmUpdateApplicationType.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmUpdateTestType.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmUpdateTestType.Designer.cs">
+      <DependentUpon>frmUpdateTestType.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCAddLocalDLA.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCAddLocalDLA.Designer.cs">
+      <DependentUpon>UCAddLocalDLA.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCAddTestAppointment.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCAddTestAppointment.Designer.cs">
+      <DependentUpon>UCAddTestAppointment.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCApplicationCard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCApplicationCard.Designer.cs">
+      <DependentUpon>UCApplicationCard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCAddInternationalLicense.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCAddInternationalLicense.Designer.cs">
+      <DependentUpon>UCAddInternationalLicense.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCDetainLicense.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCDetainLicense.Designer.cs">
+      <DependentUpon>UCDetainLicense.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCIssueDrivingLicense.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCIssueDrivingLicense.Designer.cs">
+      <DependentUpon>UCIssueDrivingLicense.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCLicenseCard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCLicenseCard.Designer.cs">
+      <DependentUpon>UCLicenseCard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCLicenseCardWithFilter.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCLicenseCardWithFilter.Designer.cs">
+      <DependentUpon>UCLicenseCardWithFilter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCList.Designer.cs">
+      <DependentUpon>UCList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCListWithFilter.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCListWithFilter.Designer.cs">
+      <DependentUpon>UCListWithFilter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCLocalDLACard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCLocalDLACard.Designer.cs">
+      <DependentUpon>UCLocalDLACard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCReForDamagedOrLostLicense.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCReForDamagedOrLostLicense.Designer.cs">
+      <DependentUpon>UCReForDamagedOrLostLicense.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCReleaseDetainedLicense.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCReleaseDetainedLicense.Designer.cs">
+      <DependentUpon>UCReleaseDetainedLicense.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCRenewLicenseApplication.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCRenewLicenseApplication.Designer.cs">
+      <DependentUpon>UCRenewLicenseApplication.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCTakeTest.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCTakeTest.Designer.cs">
+      <DependentUpon>UCTakeTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCTestAppointmentCard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCTestAppointmentCard.Designer.cs">
+      <DependentUpon>UCTestAppointmentCard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Users Management Forms\frmChangePassword.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Users Management Forms\frmChangePassword.Designer.cs">
+      <DependentUpon>frmChangePassword.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmLoginScreen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmLoginScreen.Designer.cs">
+      <DependentUpon>frmLoginScreen.cs</DependentUpon>
+    </Compile>
+    <Compile Include="People Management Forms\frmPersonCard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="People Management Forms\frmPersonCard.Designer.cs">
+      <DependentUpon>frmPersonCard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="People Management Forms\frmUpdateAndAddPerson.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="People Management Forms\frmUpdateAndAddPerson.Designer.cs">
+      <DependentUpon>frmUpdateAndAddPerson.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmHome.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmHome.Designer.cs">
+      <DependentUpon>frmHome.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmMain.Designer.cs">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="People Management Forms\frmPeople.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="People Management Forms\frmPeople.Designer.cs">
+      <DependentUpon>frmPeople.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Users Management Forms\frmUpdateAndAddUser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Users Management Forms\frmUpdateAndAddUser.Designer.cs">
+      <DependentUpon>frmUpdateAndAddUser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Users Management Forms\frmUserCard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Users Management Forms\frmUserCard.Designer.cs">
+      <DependentUpon>frmUserCard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Users Management Forms\frmUsers.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Users Management Forms\frmUsers.Designer.cs">
+      <DependentUpon>frmUsers.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UCAddPerson.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCAddPerson.Designer.cs">
+      <DependentUpon>UCAddPerson.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCAddUser.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCAddUser.Designer.cs">
+      <DependentUpon>UCAddUser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCChangePassword.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCChangePassword.Designer.cs">
+      <DependentUpon>UCChangePassword.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCFilter.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCFilter.Designer.cs">
+      <DependentUpon>UCFilter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCPersonCard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCPersonCard.Designer.cs">
+      <DependentUpon>UCPersonCard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCPersonCardWithFilter.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCPersonCardWithFilter.Designer.cs">
+      <DependentUpon>UCPersonCardWithFilter.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UCUserCard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UCUserCard.Designer.cs">
+      <DependentUpon>UCUserCard.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="frmDetainedLicenses.resx">
+      <DependentUpon>frmDetainedLicenses.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmDetainLicense.resx">
+      <DependentUpon>frmDetainLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmInternationalDLApplications.resx">
+      <DependentUpon>frmInternationalDLApplications.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmIssueInternationalDrivingLicense.aa.resx">
+      <DependentUpon>frmIssueInternationalDrivingLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmIssueInternationalDrivingLicense.ar-JO.resx">
+      <DependentUpon>frmIssueInternationalDrivingLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmIssueInternationalDrivingLicense.en-AS.resx">
+      <DependentUpon>frmIssueInternationalDrivingLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmIssueInternationalDrivingLicense.gsw.resx">
+      <DependentUpon>frmIssueInternationalDrivingLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmIssueInternationalDrivingLicense.resx">
+      <DependentUpon>frmIssueInternationalDrivingLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmLicenseCard.resx">
+      <DependentUpon>frmLicenseCard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmLicenseHistory.resx">
+      <DependentUpon>frmLicenseHistory.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Applications Form\frmLocalDLACard.resx">
+      <DependentUpon>frmLocalDLACard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmReleaseDetainedLicense.resx">
+      <DependentUpon>frmReleaseDetainedLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmRenewDrivingLicense.resx">
+      <DependentUpon>frmRenewDrivingLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmReplacementLicense.resx">
+      <DependentUpon>frmReplacementLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Schedule Tests Forms\frmAddAndUpdateTestAppointment.resx">
+      <DependentUpon>frmAddAndUpdateTestAppointment.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmDrivers.resx">
+      <DependentUpon>frmDrivers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmIssueDrivingLicense.resx">
+      <DependentUpon>frmIssueDrivingLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Applications Form\frmLDLApplications.resx">
+      <DependentUpon>frmLDLApplications.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Applications Form\frmManageApplicationTypes.resx">
+      <DependentUpon>frmManageApplicationTypes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmManageTestTypes.resx">
+      <DependentUpon>frmManageTestTypes.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Applications Form\frmAddAndUpdateLocalDLA.resx">
+      <DependentUpon>frmAddAndUpdateLocalDLA.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Schedule Tests Forms\frmTakeTest.resx">
+      <DependentUpon>frmTakeTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Schedule Tests Forms\frmTestAppointment.resx">
+      <DependentUpon>frmTestAppointment.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Applications Form\frmUpdateApplicationType.resx">
+      <DependentUpon>frmUpdateApplicationType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmUpdateTestType.resx">
+      <DependentUpon>frmUpdateTestType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCAddLocalDLA.aa-DJ.resx">
+      <DependentUpon>UCAddLocalDLA.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCAddLocalDLA.aa.resx">
+      <DependentUpon>UCAddLocalDLA.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCAddLocalDLA.resx">
+      <DependentUpon>UCAddLocalDLA.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCAddTestAppointment.resx">
+      <DependentUpon>UCAddTestAppointment.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCApplicationCard.resx">
+      <DependentUpon>UCApplicationCard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCAddInternationalLicense.resx">
+      <DependentUpon>UCAddInternationalLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCDetainLicense.resx">
+      <DependentUpon>UCDetainLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCIssueDrivingLicense.resx">
+      <DependentUpon>UCIssueDrivingLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCLicenseCard.resx">
+      <DependentUpon>UCLicenseCard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCLicenseCardWithFilter.resx">
+      <DependentUpon>UCLicenseCardWithFilter.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCList.resx">
+      <DependentUpon>UCList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCListWithFilter.resx">
+      <DependentUpon>UCListWithFilter.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCLocalDLACard.resx">
+      <DependentUpon>UCLocalDLACard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCReForDamagedOrLostLicense.resx">
+      <DependentUpon>UCReForDamagedOrLostLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCReleaseDetainedLicense.resx">
+      <DependentUpon>UCReleaseDetainedLicense.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCRenewLicenseApplication.resx">
+      <DependentUpon>UCRenewLicenseApplication.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCTakeTest.resx">
+      <DependentUpon>UCTakeTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCTestAppointmentCard.resx">
+      <DependentUpon>UCTestAppointmentCard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Users Management Forms\frmChangePassword.resx">
+      <DependentUpon>frmChangePassword.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmLoginScreen.resx">
+      <DependentUpon>frmLoginScreen.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="People Management Forms\frmPersonCard.resx">
+      <DependentUpon>frmPersonCard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="People Management Forms\frmUpdateAndAddPerson.resx">
+      <DependentUpon>frmUpdateAndAddPerson.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmHome.resx">
+      <DependentUpon>frmHome.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmMain.resx">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="People Management Forms\frmPeople.resx">
+      <DependentUpon>frmPeople.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Users Management Forms\frmUpdateAndAddUser.resx">
+      <DependentUpon>frmUpdateAndAddUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Users Management Forms\frmUserCard.resx">
+      <DependentUpon>frmUserCard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Users Management Forms\frmUsers.resx">
+      <DependentUpon>frmUsers.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="UCAddPerson.resx">
+      <DependentUpon>UCAddPerson.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCAddUser.resx">
+      <DependentUpon>UCAddUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCChangePassword.resx">
+      <DependentUpon>UCChangePassword.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCFilter.resx">
+      <DependentUpon>UCFilter.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCPersonCard.resx">
+      <DependentUpon>UCPersonCard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCPersonCardWithFilter.resx">
+      <DependentUpon>UCPersonCardWithFilter.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UCUserCard.resx">
+      <DependentUpon>UCUserCard.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DVLD Business\DVLDBusiness.csproj">
+      <Project>{5305f082-b623-41d7-afe7-dcaaebd06106}</Project>
+      <Name>DVLDBusiness</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

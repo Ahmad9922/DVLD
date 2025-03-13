@@ -1,0 +1,6 @@
+E:\Users\الجميع\Desktop\Programming\C#\DVLDDataAccess\bin\Debug\DVLDDataAccess.dll
+E:\Users\الجميع\Desktop\Programming\C#\DVLDDataAccess\bin\Debug\DVLDDataAccess.pdb
+E:\Users\الجميع\Desktop\Programming\C#\DVLDDataAccess\obj\Debug\DVLDDataAccess.csproj.AssemblyReference.cache
+E:\Users\الجميع\Desktop\Programming\C#\DVLDDataAccess\obj\Debug\DVLDDataAccess.csproj.CoreCompileInputs.cache
+E:\Users\الجميع\Desktop\Programming\C#\DVLDDataAccess\obj\Debug\DVLDDataAccess.dll
+E:\Users\الجميع\Desktop\Programming\C#\DVLDDataAccess\obj\Debug\DVLDDataAccess.pdb

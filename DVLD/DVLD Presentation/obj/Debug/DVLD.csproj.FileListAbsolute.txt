@@ -1,0 +1,12 @@
+E:\Users\الجميع\Desktop\Programming\C#\DVLD\bin\Debug\DVLD.exe.config
+E:\Users\الجميع\Desktop\Programming\C#\DVLD\bin\Debug\DVLD.exe
+E:\Users\الجميع\Desktop\Programming\C#\DVLD\bin\Debug\DVLD.pdb
+E:\Users\الجميع\Desktop\Programming\C#\DVLD\obj\Debug\DVLD.csproj.AssemblyReference.cache
+E:\Users\الجميع\Desktop\Programming\C#\DVLD\obj\Debug\DVLD.frmMain.resources
+E:\Users\الجميع\Desktop\Programming\C#\DVLD\obj\Debug\DVLD.Properties.Resources.resources
+E:\Users\الجميع\Desktop\Programming\C#\DVLD\obj\Debug\DVLD.csproj.GenerateResource.cache
+E:\Users\الجميع\Desktop\Programming\C#\DVLD\obj\Debug\DVLD.csproj.CoreCompileInputs.cache
+E:\Users\الجميع\Desktop\Programming\C#\DVLD\obj\Debug\DVLD.exe
+E:\Users\الجميع\Desktop\Programming\C#\DVLD\obj\Debug\DVLD.pdb
+E:\Users\الجميع\Desktop\Programming\C#\DVLD\bin\Debug\Guna.UI2.dll
+E:\Users\الجميع\Desktop\Programming\C#\DVLD\obj\Debug\DVLD.csproj.Up2Date

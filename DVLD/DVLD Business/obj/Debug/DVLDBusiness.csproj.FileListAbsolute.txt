@@ -1,0 +1,9 @@
+E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\bin\Debug\DVLDBusiness.dll
+E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\bin\Debug\DVLDBusiness.pdb
+E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\bin\Debug\DVLDDataAccess.dll
+E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\bin\Debug\DVLDDataAccess.pdb
+E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\obj\Debug\DVLDBusiness.csproj.AssemblyReference.cache
+E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\obj\Debug\DVLDBusiness.csproj.CoreCompileInputs.cache
+E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\obj\Debug\DVLDBusi.27287F95.Up2Date
+E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\obj\Debug\DVLDBusiness.dll
+E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\obj\Debug\DVLDBusiness.pdb
