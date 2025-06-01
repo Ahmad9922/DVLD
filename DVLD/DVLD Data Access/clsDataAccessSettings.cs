@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,13 @@ namespace DVLDDataAccess
 {
     static public class clsDataAccessSettings
     {
-        static internal string ConnectionString = "Server = .; Database = DVLD; Integrated Security = True";
+        static internal string ConnectionString 
+        { 
+            get
+            {
+                return ConfigurationManager.AppSettings["ConnectionString"];
+            }
+        }
 
         static internal string NewGuidPath 
         { 

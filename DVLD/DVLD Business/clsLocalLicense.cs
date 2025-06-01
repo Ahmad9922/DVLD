@@ -3,23 +3,27 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using static DVLDBusiness.clsPerson;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace DVLDBusiness
 {
     public class clsLocalLicense : clsLicense
     {
-        public enum enIssueReason { FirstTime = 1, Renew = 2, ReplacementForLost = 3, ReplacementForDamage = 4 }
+        public enum enIssueReason { None = 0, FirstTime = 1, Renew = 2, ReplacementForLost = 3, ReplacementForDamage = 4 }
 
         public string Notes { get; set; }
-        public float PaidFees { get; set; }
+        public decimal PaidFees { get; set; }
         public enIssueReason IssueReason {  get; protected set; }
         public bool IsDetain
         {
             get
             {
-                return clsDetain.IsLicenseDetained(this.LicenseID);
+                return clsDetain.IsLicenseDetained(this.LicenseID.Value);
             }
         }
 
@@ -42,7 +46,7 @@ namespace DVLDBusiness
         }
 
         private clsLocalLicense(int LicenseID, clsApplication Application, clsDriver Driver, clsLicenseClass LicenseClass,
-            DateTime IssueDate, DateTime ExpirationDate, string Notes, float PaidFees,
+            DateTime IssueDate, DateTime ExpirationDate, string Notes, decimal PaidFees,
             bool IsActive, enIssueReason IssueReason, clsUser CreatedByUser)
         {
             this.LicenseID = LicenseID;
@@ -60,23 +64,70 @@ namespace DVLDBusiness
             this.Mode = enMode.Update;
         }
 
-        private bool _AddNewLicense()
+        private clsLocalLicense(clsLocalLicenseDataAccess.clsLicenseData LicenseData)
         {
-            this.LicenseID = clsLocalLicenseDataAccess.IssueLocalDrivingLicense(Application.ApplicationID,
-                Driver?.DriverID ?? clsDriver.AddDriver(Application.ApplicantPerson.PersonID, CreatedByUser.UserID),
-                LicenseClass.LicenseClassID, IssueDate, ExpirationDate, Notes, PaidFees, IsActive,
-                Convert.ToInt16(IssueReason), CreatedByUser.UserID);
+            this.LicenseID = LicenseData.LicenseID;
+            this.Application = clsApplication.Find(LicenseData.ApplicationID);
+            this.Driver = clsDriver.Find(LicenseData.DriverID);
+            this.LicenseClass = clsLicenseClass.Find((clsLicenseClass.enLicenseClassID)LicenseData.LicenseClass);
+            this.IssueDate = LicenseData.IssueDate;
+            this.ExpirationDate = LicenseData.ExpirationDate;
+            this.Notes = LicenseData.Notes;
+            this.PaidFees = LicenseData.PaidFees;
+            this.IsActive = LicenseData.IsActive;
+            this.IssueReason = (enIssueReason)LicenseData.IssueReason;
+            this.CreatedByUser = clsUser.Find(LicenseData.CreatedByUserID);
+
+            this.Mode = enMode.Update;
+        }
+
+        public bool IsLicenseExpired()
+        {
+            return ExpirationDate < DateTime.Now;
+        }
+
+        private bool _Add()
+        {
+            clsLocalLicenseDataAccess.clsLicenseData LicenseData
+               = new clsLocalLicenseDataAccess.clsLicenseData()
+               {
+                   LicenseID = this.LicenseID,
+                   ApplicationID = Application.ApplicationID.Value,
+                   DriverID = Driver.DriverID.Value,
+                   LicenseClass = Convert.ToInt32(LicenseClass.LicenseClassID),
+                   IssueDate = IssueDate,
+                   ExpirationDate = ExpirationDate,
+                   Notes = Notes,
+                   PaidFees = PaidFees,
+                   IsActive = IsActive,
+                   IssueReason = Convert.ToByte(IssueReason),
+                   CreatedByUserID = CreatedByUser.UserID.Value
+               };
+
+            this.LicenseID = clsLocalLicenseDataAccess.IssueLocalDrivingLicense(LicenseData);
 
             return (this.LicenseID != -1);
         }
 
-        private bool _UpdateLicense()
+        private bool _Update()
         {
-            return clsLocalLicenseDataAccess.UpdateDrivingLicense(LicenseID, Application.ApplicationID,
-                Driver.DriverID,
-                LicenseClass.LicenseClassID, IssueDate, ExpirationDate, Notes, PaidFees, IsActive,
-                Convert.ToInt16(IssueReason), CreatedByUser.UserID);
+            clsLocalLicenseDataAccess.clsLicenseData LicenseData = new clsLocalLicenseDataAccess.clsLicenseData();
+
+            LicenseData.LicenseID = LicenseID;
+            LicenseData.ApplicationID = Application.ApplicationID.Value;
+            LicenseData.DriverID = Driver.DriverID.Value;
+            LicenseData.LicenseClass = Convert.ToInt32(LicenseClass.LicenseClassID);
+            LicenseData.IssueDate = IssueDate;
+            LicenseData.ExpirationDate = ExpirationDate;
+            LicenseData.Notes = Notes;
+            LicenseData.PaidFees = PaidFees;
+            LicenseData.IsActive = IsActive;
+            LicenseData.IssueReason = Convert.ToByte(IssueReason);
+            LicenseData.CreatedByUserID = CreatedByUser.UserID.Value;
+
+            return clsLocalLicenseDataAccess.Update(LicenseData);
         }
+
 
         public bool Save()
         {
@@ -84,7 +135,7 @@ namespace DVLDBusiness
             {
                 case enMode.AddNew:
 
-                    if (_AddNewLicense())
+                    if (_Add())
                     {
                         Mode = enMode.Update;
                         return true;
@@ -96,59 +147,79 @@ namespace DVLDBusiness
 
                 case enMode.Update:
 
-                    return _UpdateLicense();
+                    return _Update();
             }
 
             return false;
         }
 
-        public clsLocalLicense ReplacementForLost(clsApplication Application, clsUser CreatedByUser)
+        public clsLocalLicense Renew(string Notes, clsApplication Application, clsUser CreatedByUser)
         {
-            if (Application != null && Application.ApplicationType.ApplicationTypeID == 3)
+            if (Application == null || Application.ApplicationType.ApplicationTypeID !=
+                clsApplicationType.enApplicationTypeID.RenewDrivingLicenseService)
+                return null;
+         
+            clsLocalLicense RenewedLocalLicense = new clsLocalLicense(Application, clsDriver.FindByPerson(
+                Application.ApplicantPerson.PersonID.Value), this.LicenseClass, CreatedByUser, IssueReason);
+
+            RenewedLocalLicense.Notes = Notes;
+
+            if (RenewedLocalLicense.Save())
             {
-                clsLocalLicense ReplacedLocalLicense = new clsLocalLicense(Application, clsDriver.FindByPerson(
-                    Application.ApplicantPerson.PersonID), this.LicenseClass, CreatedByUser, enIssueReason.ReplacementForLost);
+                this.IsActive = false;
 
-                ReplacedLocalLicense.Notes = this.Notes;
-
-                if (ReplacedLocalLicense.Save())
+                if (this.Save())
                 {
-                    this.IsActive = false;
-
-                    if (this.Save())
-                    {
-                        return ReplacedLocalLicense;
-                    }
+                    return RenewedLocalLicense;
                 }
             }
 
             return null;
         }
 
-        public clsLocalLicense ReplacementForDamaged(clsApplication Application, clsUser CreatedByUser)
+        public clsLocalLicense Replace(clsApplication Application, clsUser CreatedByUser)
         {
-            if (Application != null && Application.ApplicationType.ApplicationTypeID == 4)
+            if (Application == null)
+                return null;
+
+            enIssueReason IssueReason = enIssueReason.None;
+
+            if (Application.ApplicationType.ApplicationTypeID ==
+                clsApplicationType.enApplicationTypeID.ReplacementforaLostDrivingLicense)
             {
-                clsLocalLicense ReplacedLocalLicense = new clsLocalLicense(Application, clsDriver.FindByPerson(
-                    Application.ApplicantPerson.PersonID), this.LicenseClass, CreatedByUser, enIssueReason.ReplacementForDamage);
+                IssueReason = enIssueReason.ReplacementForLost;
+            }
+            else if (Application.ApplicationType.ApplicationTypeID ==
+                clsApplicationType.enApplicationTypeID.ReplacementforaDamagedDrivingLicense)
+            { 
+                IssueReason = enIssueReason.ReplacementForDamage;
+            }
+            else
+            {
+                return null; 
+                // The application must be of type 'Lost Replacement' or 'Damaged Replacement'
+                // to proceed with the replacement process.
+            }
 
-                ReplacedLocalLicense.Notes = this.Notes;
+            clsLocalLicense ReplacedLocalLicense = new clsLocalLicense(Application, clsDriver.FindByPerson(
+                Application.ApplicantPerson.PersonID.Value), this.LicenseClass, CreatedByUser, IssueReason);
 
-                if (ReplacedLocalLicense.Save())
+            ReplacedLocalLicense.Notes = this.Notes;
+
+            if (ReplacedLocalLicense.Save())
+            {
+                this.IsActive = false;
+
+                if (this.Save())
                 {
-                    this.IsActive = false;
-
-                    if (this.Save())
-                    {
-                        return ReplacedLocalLicense;
-                    }
+                    return ReplacedLocalLicense;
                 }
             }
 
             return null;
         }
 
-        public clsDetain Detain(float FineFees, clsUser CreatedByUser)
+        public clsDetain Detain(decimal FineFees, clsUser CreatedByUser)
         {
             clsDetain Detain = new clsDetain(this, CreatedByUser);
             Detain.FineFees = FineFees;
@@ -163,7 +234,7 @@ namespace DVLDBusiness
 
         public bool ReleaseDetained(clsApplication Application, clsUser CreatedByUser)
         {
-            clsDetain Detain = clsDetain.FindByDetainedLicense(this.LicenseID);
+            clsDetain Detain = clsDetain.FindByDetainedLicense(this.LicenseID.Value);
 
             if (Detain != null)
                 return Detain.Release(Application, CreatedByUser);
@@ -173,19 +244,13 @@ namespace DVLDBusiness
 
         static public clsLocalLicense Find(int LicenseID)
         {
-            int ApplicationID = -1, DriverID = -1, LicenseClassID = -1, CreatedByUserID = -1;
-            DateTime IssueDate = DateTime.MinValue, ExpirationDate = DateTime.MinValue;
-            string Notes = string.Empty;
-            float PaidFees = 0;
-            bool IsActive = false;
-            short IssueReason = 0;
+            clsLocalLicenseDataAccess.clsLicenseData LicenseData = new clsLocalLicenseDataAccess.clsLicenseData();
 
-            if (clsLocalLicenseDataAccess.GetDrivingLicenseByID(ref LicenseID, ref ApplicationID, ref DriverID, ref LicenseClassID,
-                ref IssueDate, ref ExpirationDate, ref Notes, ref PaidFees, ref IsActive, ref IssueReason, ref CreatedByUserID))
+            LicenseData.LicenseID = LicenseID;
+
+            if (clsLocalLicenseDataAccess.GetDrivingLicenseByID(LicenseData))
             {
-                return new clsLocalLicense(LicenseID, clsApplication.Find(ApplicationID), clsDriver.Find(DriverID),
-                    clsLicenseClass.Find(LicenseClassID), IssueDate, ExpirationDate, Notes, PaidFees, IsActive,
-                    (enIssueReason)IssueReason, clsUser.Find(CreatedByUserID));
+                return new clsLocalLicense(LicenseData);
             }
             else
             {
@@ -195,10 +260,10 @@ namespace DVLDBusiness
 
         static public clsLocalLicense Add(clsLocalDLA LocalDLA, clsUser CreatedByUser)
         {
-            if (LocalDLA != null)
+            if (LocalDLA != null && CreatedByUser != null)
             {
-                return new clsLocalLicense(clsApplication.Find(LocalDLA.ApplicationID),
-                    clsDriver.FindByPerson(LocalDLA.ApplicantPerson.PersonID), LocalDLA.LicenseClass,
+                return new clsLocalLicense(LocalDLA,
+                    clsDriver.FindByPerson(LocalDLA.ApplicantPerson.PersonID.Value), LocalDLA.LicenseClass,
                     CreatedByUser, enIssueReason.FirstTime);
             }
             else
@@ -207,35 +272,9 @@ namespace DVLDBusiness
             }
         }
 
-        static public clsLocalLicense Renew(clsApplication Application, clsLocalLicense OldLicense, clsUser CreatedByUser)
+        static public DataTable GetLicenseList(int DriverID = -1)
         {
-            if (Application != null && OldLicense != null)
-            {
-                return new clsLocalLicense(Application, clsDriver.FindByPerson(Application.ApplicantPerson.PersonID),
-                    OldLicense.LicenseClass, CreatedByUser, enIssueReason.Renew);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        static public clsLocalLicense Replace(clsApplication Application, clsLocalLicense OldLicense, clsUser CreatedByUser)
-        {
-            if (Application != null && OldLicense != null)
-            {
-                return new clsLocalLicense(Application, clsDriver.FindByPerson(Application.ApplicantPerson.PersonID),
-                    OldLicense.LicenseClass, CreatedByUser, enIssueReason.Renew);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        static public DataTable GetLicenseList(string Value = "", string ColumnName = "")
-        {
-            return clsLocalLicenseDataAccess.GetLicenseList(Value, ColumnName);
+            return clsLocalLicenseDataAccess.GetLicenseList(DriverID);
         }
 
         static public int GetLicenseID(int LocalDLAID)

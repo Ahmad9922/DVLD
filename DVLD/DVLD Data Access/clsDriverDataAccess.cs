@@ -5,229 +5,111 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dotools;
 
 namespace DVLDDataAccess
 {
     public class clsDriverDataAccess
     {
-        public static bool GetDriverByDriverID(int DriverID, ref int PersonID, ref int CreatedByUserID,
-            ref DateTime CreatedDate)
+        public class clsDriverData
         {
-            bool IsFound = false;
+            public int? DriverID { get; set; }
+            public int PersonID { get; set; }
+            public int CreatedByUserID { get; set; }
+            public DateTime CreatedDate { get; set; }
+        }
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
+        public static bool GetDriverByDriverID(clsDriverData DriverData)
+        {
             string Query = @"SELECT * FROM Drivers
                        	     WHERE DriverID = @DriverID;";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@DriverID", DriverID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader(Command, DriverData);
 
-                if (reader.Read())
-                {
-                    PersonID = Convert.ToInt32(reader["PersonID"]);
-                    CreatedByUserID = Convert.ToInt32(reader["CreatedByUserID"]);
-                    CreatedDate = Convert.ToDateTime(reader["CreatedDate"]);
-                    IsFound = true;
-                }
-                else
-                {
-                    IsFound = false;
-                }
-
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                IsFound = false;
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return IsFound;
+            }, Query, new SqlParameter("@DriverID", DriverData.DriverID));
         }
 
-        public static bool GetDriverByPersonID(ref int DriverID, int PersonID, ref int CreatedByUserID,
-           ref DateTime CreatedDate)
+        public static bool GetDriverByPersonID(clsDriverData DriverData)
         {
-            bool IsFound = false;
-
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
             string Query = @"SELECT * FROM Drivers
                        	     WHERE PersonID = @PersonID;";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@PersonID", PersonID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader(Command, DriverData);
 
-                if (reader.Read())
-                {
-                    DriverID = Convert.ToInt32(reader["DriverID"]);
-                    CreatedByUserID = Convert.ToInt32(reader["CreatedByUserID"]);
-                    CreatedDate = Convert.ToDateTime(reader["CreatedDate"]);
-                    IsFound = true;
-                }
-                else
-                {
-                    IsFound = false;
-                }
-
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                IsFound = false;
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return IsFound;
+            }, Query, new SqlParameter("@PersonID", DriverData.PersonID));
         }
 
-        public static int AddDriver(int PersonID, int CreatedByUserID)
+        public static int Add(clsDriverData DriverData)
         {
-            int DriverID = -1;
+            string Query = @"INSERT INTO [dbo].[Drivers] ( 
+            [PersonID], [CreatedByUserID], [CreatedDate])
+             VALUES ( @PersonID, @CreatedByUserID, @CreatedDate)
+             SELECT SCOPE_IDENTITY();";
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
-            string Query = @"INSERT INTO [dbo].[Drivers]
-                             ([PersonID]
-                             ,[CreatedByUserID]
-                             ,[CreatedDate])
-                             VALUES
-                             (@PersonID
-                             ,@CreatedByUserID
-                             ,GETDATE())
-                             SELECT SCOPE_IDENTITY();";
-
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@PersonID", PersonID);
-            command.Parameters.AddWithValue("@CreatedByUserID", CreatedByUserID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                object Result = command.ExecuteScalar();
+                return Convert.ToInt32(clsAdoQueryExecutor.ExecuteScalar(Command));
 
-                if (Result != null && int.TryParse(Result.ToString(), out int InsertedID))
-                {
-                    DriverID = InsertedID;
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return DriverID;
+            }, Query, DriverData);
         }
 
-        static string _SetQuery(string Value, string ColumnName)
+        public static bool Update(clsDriverData DriverData)
         {
-            string Query = @"SELECt * FROM Drivers_View ";
+            string Query = @"UPDATE [dbo].[Drivers] SET 
+            [PersonID] = @PersonID,
+            [CreatedByUserID] = @CreatedByUserID,
+            [CreatedDate] = @CreatedDate WHERE DriverID = @DriverID";
 
-            if (string.IsNullOrEmpty(Value) || Value == "All")
-                return Query;
-
-            switch (ColumnName)
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                case "DriverID":
-                    return Query += "WHERE DriverID LIKE '%' + @Value + '%';";
+                return clsAdoQueryExecutor.ExecuteNonQuery(Command);
 
-                case "PersonID":
-                    return Query += "WHERE PersonID LIKE '%' + @Value + '%';";
-
-                case "NationalNo":
-                    return Query += "WHERE NationalNo LIKE '%' + @Value + '%';";
-
-                case "FullName":
-                    return Query += "WHERE FullName LIKE '%' + @Value + '%';";
-
-                case "NumberOfActiveLicenses":
-                    return Query += "WHERE NumberOfActiveLicenses LIKE '%' + @Value + '%';";
-            }
-
-            return Query;
+            }, Query, DriverData) > 0;
         }
 
-        public static DataTable GetDrivers(string Value = "", string ColumnName = "")
+        public static DataTable GetDrivers()
         {
-            DataTable DT = new DataTable();
+            string Query = @"SELECT DriverID AS [Driver ID], PersonID AS [Person ID],
+                             NationalNo AS [National No], FullName AS [Full Name],
+                             CreatedDate AS [Created Date], NumberOfActiveLicenses AS
+                             [Number Of Active Licenses]
+                             FROM Drivers_View ";
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
-            string Query = _SetQuery(Value, ColumnName);
-
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@Value", Value);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader(Command);
 
-                if (reader.HasRows)
-                {
-                    DT.Load(reader);
-                }
-            }
-            catch (Exception ex)
+            }, Query);
+        }
+
+        public static DataTable GetDrivers(clsDataTypes.clsFilterData FilterData)
+        {
+            string Query = @"SELECT * FROM ( SELECT DriverID AS [Driver ID], PersonID AS [Person ID],
+                             NationalNo AS [National No], FullName AS [Full Name],
+                             CreatedDate AS [Created Date], NumberOfActiveLicenses AS
+                             [Number Of Active Licenses]
+                             FROM Drivers_View ) Driver_View ";
+
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
+                return clsAdoQueryExecutor.ExecuteReader(Command, FilterData);
 
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return DT;
+            }, Query);
         }
 
         public static bool IsPersonDriver(int PersonID)
         {
-            object Result = null;
-
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
             string Query = @"Select R = 1 From Drivers Where PersonID = @PersonID";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@PersonID", PersonID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                Result = command.ExecuteScalar();
-            }
-            catch (Exception ex)
-            {
+                return clsAdoQueryExecutor.ExecuteScalar(Command);
 
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return Result != null;
+            }, Query, new SqlParameter("@PersonID", PersonID)) != null;
         }
-
     }
 }

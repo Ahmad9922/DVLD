@@ -4,75 +4,39 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dotools;
 
 namespace DVLDDataAccess
 {
     static public class clsTestDataAccess
     {
-        public static bool GetTestByID(int TestID, ref int TestAppointmentID, ref bool TestResult,
-            ref string Notes, ref int CreatedByUserID)
+        public class clsTestData
         {
-            bool IsFound = false;
-
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
-            string Query = @"SELECT * FROM Tests
-                       	     WHERE TestID = @TestID;";
-
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@TestID", TestID);
-
-            try
-            {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
-
-                if (reader.Read())
-                {
-                    TestAppointmentID = Convert.ToInt32(reader["TestAppointmentID"]);
-                    TestResult = Convert.ToBoolean(reader["TestResult"]);
-                    Notes = Convert.ToString(reader["Notes"]);
-                    CreatedByUserID = Convert.ToInt32(reader["CreatedByUserID"]);
-                    IsFound = true;
-                }
-                else
-                {
-                    IsFound = false;
-                }
-
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                IsFound = false;
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return IsFound;
+            public int? TestID { get; set; }
+            public int? TestAppointmentID { get; set; }
+            public bool TestResult { get; set; }
+            public string Notes { get; set; }
+            public int CreatedByUserID { get; set; }
         }
 
-        public static int AddNewTest(int TestAppointmentID, bool TestResult,
-            string Notes, int CreatedByUserID, int LocalDLAID)
+        public static bool GetByID(clsTestData TestData)
         {
-            int TestID = -1;
+            string Query = "SELECT * FROM Tests WHERE TestID = @TestID;";
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
+            {
+                return clsAdoQueryExecutor.ExecuteReader(Command, TestData);
 
-            string Query = @"INSERT INTO [dbo].[Tests]
-           ([TestAppointmentID]
-           ,[TestResult]
-           ,[Notes]
-           ,[CreatedByUserID])
-           VALUES
-           (@TestAppointmentID
-           ,@TestResult
-           ,@Notes
-           ,@CreatedByUserID);
+            }, Query, new SqlParameter("@TestID", TestData.TestID));
 
-            SELECT SCOPE_IDENTITY();
+        }
+
+        public static int AddNew(clsTestData TestData)
+        {
+            string Query = @"INSERT INTO [dbo].[Tests] ( 
+                             [TestResult], [Notes], [CreatedByUserID])
+                             VALUES ( @TestResult, @Notes, @CreatedByUserID)
+                             SELECT SCOPE_IDENTITY();
 
             UPDATE [dbo].[TestAppointments]
             SET
@@ -86,75 +50,25 @@ namespace DVLDDataAccess
             WHERE ApplicationID = (SELECT TestAppointments.RetakeTestApplicationID FROM TestAppointments WHERE TestAppointmentID = @TestAppointmentID )
             END";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@TestAppointmentID", TestAppointmentID);
-            command.Parameters.AddWithValue("@TestResult", TestResult);
-
-            if (string.IsNullOrEmpty(Notes))
-                command.Parameters.AddWithValue("@Notes", DBNull.Value);
-            else
-                command.Parameters.AddWithValue("@Notes", Notes);
-
-            command.Parameters.AddWithValue("@CreatedByUserID", CreatedByUserID);
-            command.Parameters.AddWithValue("@LocalDLAID", LocalDLAID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                object Result = command.ExecuteScalar();
+                return Convert.ToInt32(clsAdoQueryExecutor.ExecuteScalar(Command));
 
-                if (Result != null && int.TryParse(Result.ToString(), out int InsertedID))
-                {
-                    TestAppointmentID = InsertedID;
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return TestAppointmentID;
+            }, Query, TestData);
         }
 
-        public static bool UpdateTest(int TestID, int TestAppointmentID, bool TestResult,
-            string Notes, int CreatedByUserID)
+        public static bool Update(clsTestData TestData)
         {
-            int RowsAffected = 0;
+            string Query = @"UPDATE [dbo].[Tests] SET 
+                             [TestResult] = @TestResult,
+                             [Notes] = @Notes,
+                             [CreatedByUserID] = @CreatedByUserID WHERE TestID = @TestID";
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
-            string Query = @"UPDATE [dbo].[Tests]
-                             SET [TestAppointmentID] = @TestAppointmentID
-                                ,[TestResult] = @TestResult
-                                ,[Notes] = @Notes
-                                ,[CreatedByUserID] = @CreatedByUserID
-                                WHERE TestID = @TestID";
-
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@TestID", TestID);
-            command.Parameters.AddWithValue("@TestAppointmentID", TestAppointmentID);
-            command.Parameters.AddWithValue("@TestResult", TestResult);
-            command.Parameters.AddWithValue("@CreatedByUserID", CreatedByUserID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                RowsAffected = command.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
+                return clsAdoQueryExecutor.ExecuteNonQuery(Command);
 
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return RowsAffected > 0;
+            }, Query, TestData) > 0;
         }
     }
 }

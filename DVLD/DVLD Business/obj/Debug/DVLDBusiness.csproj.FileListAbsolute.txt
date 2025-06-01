@@ -7,3 +7,14 @@ E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\obj\Debug\DVLDBusiness
 E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\obj\Debug\DVLDBusi.27287F95.Up2Date
 E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\obj\Debug\DVLDBusiness.dll
 E:\Users\الجميع\Desktop\Programming\C#\DVLDBusiness\obj\Debug\DVLDBusiness.pdb
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Business\obj\Debug\DVLDBusiness.csproj.AssemblyReference.cache
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Business\obj\Debug\DVLDBusiness.csproj.CoreCompileInputs.cache
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Business\obj\Debug\DVLDBusiness.dll
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Business\obj\Debug\DVLDBusiness.pdb
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Business\bin\Debug\DVLDBusiness.dll
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Business\bin\Debug\DVLDBusiness.pdb
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Business\bin\Debug\DVLDDataAccess.dll
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Business\bin\Debug\DVLDDataAccess.pdb
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Business\obj\Debug\DVLDBusi.27287F95.Up2Date
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Business\bin\Debug\Dotools.dll
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Business\bin\Debug\Dotools.pdb

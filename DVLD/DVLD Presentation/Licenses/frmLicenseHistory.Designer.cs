@@ -1,0 +1,71 @@
+﻿namespace DVLD
+{
+    partial class frmLicenseHistory
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.ucPersonCard1 = new DVLD.UCPersonCard();
+            this.ucDriverLicenses1 = new DVLD.UCDriverLicenses();
+            this.SuspendLayout();
+            // 
+            // ucPersonCard1
+            // 
+            this.ucPersonCard1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.ucPersonCard1.Location = new System.Drawing.Point(0, 0);
+            this.ucPersonCard1.Name = "ucPersonCard1";
+            this.ucPersonCard1.Size = new System.Drawing.Size(824, 311);
+            this.ucPersonCard1.TabIndex = 0;
+            // 
+            // ucDriverLicenses1
+            // 
+            this.ucDriverLicenses1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ucDriverLicenses1.Location = new System.Drawing.Point(0, 311);
+            this.ucDriverLicenses1.Name = "ucDriverLicenses1";
+            this.ucDriverLicenses1.Size = new System.Drawing.Size(824, 351);
+            this.ucDriverLicenses1.TabIndex = 1;
+            // 
+            // frmLicenseHistory
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(824, 662);
+            this.Controls.Add(this.ucDriverLicenses1);
+            this.Controls.Add(this.ucPersonCard1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.Name = "frmLicenseHistory";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "License History";
+            this.ResumeLayout(false);
+
+        }
+
+        #endregion
+
+        private UCPersonCard ucPersonCard1;
+        private UCDriverLicenses ucDriverLicenses1;
+    }
+}

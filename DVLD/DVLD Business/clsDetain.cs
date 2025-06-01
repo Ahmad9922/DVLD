@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dotools;
 
 namespace DVLDBusiness
 {
@@ -13,10 +14,10 @@ namespace DVLDBusiness
         public int DetainID { get; set; }
         public clsLocalLicense DetainedLicense { get; set; }
         public DateTime DetainDate { get; set; }
-        public float FineFees { get; set; }
+        public decimal FineFees { get; set; }
         public clsUser CreatedByUser { get; set; }
-        public bool IsRelease { get; set; }
-        public DateTime ReleaseDate { get; set; }
+        public bool IsReleased { get; set; }
+        public DateTime? ReleaseDate { get; set; }
         public clsUser ReleasedByUser { get; set; }
         public clsApplication ReleaseApplicationByUser { get; set; }
 
@@ -31,8 +32,8 @@ namespace DVLDBusiness
             this.FineFees = FineFees;
             this.CreatedByUser = CreatedByUser;
 
-            this.IsRelease = false;
-            this.ReleaseDate = DateTime.MinValue;
+            this.IsReleased = false;
+            this.ReleaseDate = null;
             this.ReleasedByUser = null;
             this.ReleaseApplicationByUser = null;
 
@@ -40,8 +41,8 @@ namespace DVLDBusiness
             this.Mode = enMode.AddNew;
         }
 
-        private clsDetain(int DetainID, clsLocalLicense DetainedLicense, DateTime DetainDate, float FineFees,
-            clsUser CreatedByUser, bool IsRelease, DateTime ReleaseDate, clsUser ReleasedByUser,
+        private clsDetain(int DetainID, clsLocalLicense DetainedLicense, DateTime DetainDate, decimal FineFees,
+            clsUser CreatedByUser, bool IsRelease, DateTime? ReleaseDate, clsUser ReleasedByUser,
             clsApplication ReleaseApplicationByUser)
         {
             this.DetainID = DetainID;
@@ -49,7 +50,7 @@ namespace DVLDBusiness
             this.DetainDate = DetainDate;
             this.FineFees = FineFees;
             this.CreatedByUser = CreatedByUser;
-            this.IsRelease = IsRelease;
+            this.IsReleased = IsRelease;
             this.ReleaseDate = ReleaseDate;
             this.ReleasedByUser = ReleasedByUser;
             this.ReleaseApplicationByUser = ReleaseApplicationByUser;
@@ -59,24 +60,43 @@ namespace DVLDBusiness
 
         private bool _AddNewDetain()
         {
-            this.DetainID = clsDetainDataAccess.DetainLicense(DetainedLicense.LicenseID, DetainDate, FineFees,
-                CreatedByUser.UserID,
-                IsRelease,
-                ReleaseDate,
-                ReleasedByUser?.UserID ?? -1,
-                ReleaseApplicationByUser?.ApplicationID ?? -1);
+            clsDetainDataAccess.clsDetainData DetainData
+            = new clsDetainDataAccess.clsDetainData()
+            {
+                DetainID = null,
+                LicenseID = this.DetainedLicense.LicenseID.Value,
+                DetainDate = this.DetainDate,
+                FineFees = this.FineFees,
+                CreatedByUserID = this.CreatedByUser.UserID.Value,
+                IsReleased = this.IsReleased,
+                ReleaseDate = this.ReleaseDate,
+                ReleasedByUserID = this.ReleasedByUser.UserID,
+                ReleaseApplicationID = this.ReleaseApplicationByUser.ApplicationID,
+            };
 
-            return (this.DetainID != -1);
+            this.DetainID = clsDetainDataAccess.AddNew(DetainData);
+
+            return (DetainID != -1);
         }
 
         private bool _UpdateDetain()
         {
-            return clsDetainDataAccess.UpdateDetain(DetainID, DetainedLicense.LicenseID, DetainDate, FineFees,
-                CreatedByUser.UserID,
-                IsRelease,
-                ReleaseDate,
-                ReleasedByUser?.UserID ?? -1,
-                ReleaseApplicationByUser?.ApplicationID ?? -1);
+            clsDetainDataAccess.clsDetainData DetainData
+            = new clsDetainDataAccess.clsDetainData()
+            {
+            
+                DetainID = this.DetainID,
+                LicenseID = this.DetainedLicense.LicenseID.Value,
+                DetainDate = this.DetainDate,
+                FineFees = this.FineFees,
+                CreatedByUserID = this.CreatedByUser.UserID.Value,
+                IsReleased = this.IsReleased,
+                ReleaseDate = this.ReleaseDate,
+                ReleasedByUserID = this.ReleasedByUser.UserID,
+                ReleaseApplicationID = this.ReleaseApplicationByUser.ApplicationID,
+            };
+
+            return clsDetainDataAccess.Update(DetainData);
         }
 
         internal bool Save()
@@ -108,25 +128,22 @@ namespace DVLDBusiness
             this.ReleaseApplicationByUser = Application;
             this.ReleasedByUser = CreatedByUser;
             this.ReleaseDate = DateTime.Now;
-            this.IsRelease = true;
+            this.IsReleased = true;
 
             return Save();
         }
 
         static public clsDetain Find(int DetainID)
         {
-            int DetainedLicense = -1, CreatedByUserID = -1, ReleasedByUserID = -1, ReleaseApplicationByUserID = -1;
-            DateTime DetainDate = DateTime.MinValue, ReleaseDate = DateTime.MinValue;
+            clsDetainDataAccess.clsDetainData DetainedLicenseData = new clsDetainDataAccess.clsDetainData();
 
-            float FineFees = 0;
-            bool IsRelease = false;
+            DetainedLicenseData.DetainID = DetainID;
 
-            if (clsDetainDataAccess.GetDetainByDetainID(ref DetainID, ref DetainedLicense, ref DetainDate, ref FineFees,
-               ref CreatedByUserID, ref IsRelease, ref ReleaseDate, ref ReleasedByUserID, ref ReleaseApplicationByUserID))
+            if (clsDetainDataAccess.GetDetainByDetainID(DetainedLicenseData))
             {
-                return new clsDetain(DetainID, clsLocalLicense.Find(DetainedLicense), DetainDate, FineFees,
-                    clsUser.Find(CreatedByUserID), IsRelease, ReleaseDate, clsUser.Find(ReleasedByUserID),
-                    clsApplication.Find(ReleaseApplicationByUserID));
+                return new clsDetain(DetainID, clsLocalLicense.Find(DetainedLicenseData.LicenseID), DetainedLicenseData.DetainDate, DetainedLicenseData.FineFees,
+                    clsUser.Find(DetainedLicenseData.CreatedByUserID), DetainedLicenseData.IsReleased, DetainedLicenseData.ReleaseDate, clsUser.Find(DetainedLicenseData.ReleasedByUserID.Value),
+                    clsApplication.Find(DetainedLicenseData.ReleaseApplicationID.Value));
             }
             else
             {
@@ -136,18 +153,15 @@ namespace DVLDBusiness
 
         static public clsDetain FindByDetainedLicense(int DetainedLicense)
         {
-            int DetainID = -1, CreatedByUserID = -1, ReleasedByUserID = -1, ReleaseApplicationByUserID = -1;
-            DateTime DetainDate = DateTime.MinValue, ReleaseDate = DateTime.MinValue;
+            clsDetainDataAccess.clsDetainData DetainedLicenseData = new clsDetainDataAccess.clsDetainData();
 
-            float FineFees = 0;
-            bool IsRelease = false;
+            DetainedLicenseData.LicenseID = DetainedLicense;
 
-            if (clsDetainDataAccess.GetDetainByDetainedLicenseID(ref DetainID, ref DetainedLicense, ref DetainDate, ref FineFees,
-               ref CreatedByUserID, ref IsRelease, ref ReleaseDate, ref ReleasedByUserID, ref ReleaseApplicationByUserID))
+            if (clsDetainDataAccess.GetDetainByDetainedLicenseID(DetainedLicenseData))
             {
-                return new clsDetain(DetainID, clsLocalLicense.Find(DetainedLicense), DetainDate, FineFees,
-                    clsUser.Find(CreatedByUserID), IsRelease, ReleaseDate, clsUser.Find(ReleasedByUserID),
-                    clsApplication.Find(ReleaseApplicationByUserID));
+                return new clsDetain(DetainedLicenseData.DetainID.Value, clsLocalLicense.Find(DetainedLicenseData.LicenseID), DetainedLicenseData.DetainDate, DetainedLicenseData.FineFees,
+                    clsUser.Find(DetainedLicenseData.CreatedByUserID), DetainedLicenseData.IsReleased, DetainedLicenseData.ReleaseDate, clsUser.Find(DetainedLicenseData.ReleasedByUserID.Value),
+                    clsApplication.Find(DetainedLicenseData.ReleaseApplicationID.Value));
             }
             else
             {
@@ -155,9 +169,14 @@ namespace DVLDBusiness
             }
         }
 
-        static public DataTable GetDetainsList(string Value = "", string ColumnName = "")
+        static public DataTable GetDetainsList()
         {
-            return clsDetainDataAccess.GetDetainsList(Value, ColumnName);
+            return clsDetainDataAccess.GetDetainsList();
+        }
+
+        static public DataTable GetDetainsList(string Value, string FieldName)
+        {
+            return clsDetainDataAccess.GetDetainsList(new clsDataTypes.clsFilterData(Value, FieldName));
         }
 
         static public bool IsLicenseDetained(int LicenseID)

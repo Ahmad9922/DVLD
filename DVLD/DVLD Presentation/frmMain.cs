@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
 using DVLD;
 using System.IO;
 
@@ -20,6 +19,9 @@ namespace DVLDPresentation
         frmPeople PeopleForm;
         frmDrivers DriversForm;
         frmUsers UsersForm;
+        frmApplications ApplicationsForm;
+
+        public event Action OnSignOutClick;
 
         public frmMain()
         {
@@ -29,6 +31,7 @@ namespace DVLDPresentation
             PeopleForm = new frmPeople();
             DriversForm = new frmDrivers();
             UsersForm = new frmUsers();
+            ApplicationsForm = new frmApplications();
         }
 
         private void SetRegisteredUserInfo()
@@ -68,6 +71,7 @@ namespace DVLDPresentation
             PeopleForm.Close();
             DriversForm.Close();
             UsersForm.Close();
+            ApplicationsForm.Close();
 
             if (HomeForm.IsDisposed)
                 HomeForm = new frmHome();
@@ -80,6 +84,7 @@ namespace DVLDPresentation
             HomeForm.Close();
             DriversForm.Close();
             UsersForm.Close();
+            ApplicationsForm.Close();
 
             if (PeopleForm.IsDisposed)
                 PeopleForm = new frmPeople();
@@ -92,6 +97,7 @@ namespace DVLDPresentation
             HomeForm.Close();
             PeopleForm.Close();
             UsersForm.Close();
+            ApplicationsForm.Close();
 
             if (DriversForm.IsDisposed)
                 DriversForm = new frmDrivers();
@@ -104,11 +110,25 @@ namespace DVLDPresentation
             PeopleForm.Close();
             DriversForm.Close();
             HomeForm.Close();
+            ApplicationsForm.Close();
 
             if (UsersForm.IsDisposed)
                 UsersForm = new frmUsers();
 
             SetForm(UsersForm);
+        }
+
+        private void btnApplicationTab_Click(object sender, EventArgs e)
+        {
+            PeopleForm.Close();
+            DriversForm.Close();
+            UsersForm.Close();
+            HomeForm.Close();
+
+            if (ApplicationsForm.IsDisposed)
+                ApplicationsForm = new frmApplications();
+
+            SetForm(ApplicationsForm);
         }
 
         private void btnRegisteredUserAccount_Click(object sender, EventArgs e)
@@ -121,23 +141,19 @@ namespace DVLDPresentation
 
         private void btnAccountInfo_Click(object sender, EventArgs e)
         {
-            frmUserCard UserCardForm = new frmUserCard(clsGeneralProperties.RegisteredUser.UserID);
+            frmUserCard UserCardForm = new frmUserCard(clsGeneralProperties.RegisteredUser.UserID.Value);
             UserCardForm.ShowDialog();
         }
 
         private void btnChangePassword_Click(object sender, EventArgs e)
         {
-            frmChangePassword ChangePasswordForm = new frmChangePassword(clsGeneralProperties.RegisteredUser.UserID);
+            frmChangePassword ChangePasswordForm = new frmChangePassword(clsGeneralProperties.RegisteredUser.UserID.Value);
             ChangePasswordForm.ShowDialog();
         }
 
         private void btnSignOut_Click(object sender, EventArgs e)
         {
-            clsGeneralProperties.RegisteredUser = null;
-            frmLoginScreen LoginForm = new frmLoginScreen();
-            this.Hide();
-            LoginForm.ShowDialog();
-            this.Close();
+            OnSignOutClick?.Invoke();
         }
     }
 }

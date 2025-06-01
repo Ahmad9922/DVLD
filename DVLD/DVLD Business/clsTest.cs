@@ -40,18 +40,48 @@ namespace DVLDBusiness
             this.Mode = enMode.Update;
         }
 
+        private clsTest(clsTestDataAccess.clsTestData TestData)
+        {
+            this.TestID = TestData.TestID.Value;
+            this.TestAppointment = clsTestAppointment.Find(TestData.TestAppointmentID.Value);
+            this.TestResult = TestData.TestResult;
+            this.Notes = TestData.Notes;
+            this.CreatedByUser = clsUser.Find(TestData.CreatedByUserID);
+        }
+
+
         private bool _AddNewTest()
         {
-            this.TestID = clsTestDataAccess.AddNewTest(TestAppointment.TestAppointmentID, TestResult,
-                Notes, CreatedByUser.UserID, TestAppointment.LocalDLA.LocalDLAID);
+            clsTestDataAccess.clsTestData TestData
+            = new clsTestDataAccess.clsTestData()
+            {
+                TestID = null,
+                TestAppointmentID = this.TestAppointment.TestAppointmentID,
+                TestResult = this.TestResult,
+                Notes = this.Notes,
+                CreatedByUserID = this.CreatedByUser.UserID.Value,
+            };
 
-            return (this.TestID != -1);
+            this.TestID = clsTestDataAccess.AddNew(TestData);
+
+            return (TestID != -1);
+
         }
 
         private bool _UpdateTest()
         {
-            return clsTestDataAccess.UpdateTest(TestID, TestAppointment.TestAppointmentID, TestResult,
-                Notes, CreatedByUser.UserID);
+            clsTestDataAccess.clsTestData TestData
+            = new clsTestDataAccess.clsTestData()
+            {
+            
+                TestID = this.TestID,
+                TestAppointmentID = this.TestAppointment.TestAppointmentID,
+                TestResult = this.TestResult,
+                Notes = this.Notes,
+                CreatedByUserID = this.CreatedByUser.UserID.Value,
+            };
+
+            return clsTestDataAccess.Update(TestData);
         }
 
         public bool Save()
@@ -80,13 +110,14 @@ namespace DVLDBusiness
 
         static public clsTest Find(int TestID)
         {
-            int TestAppointmentID = -1, CreatedByUserID = -1;
-            bool TestResult = false;
-            string Notes = null;
+            clsTestDataAccess.clsTestData TestData
+            = new clsTestDataAccess.clsTestData();
 
-            if (clsTestDataAccess.GetTestByID(TestID, ref TestAppointmentID, ref TestResult, ref Notes, ref CreatedByUserID))
+            TestData.TestID = TestID;
+
+            if (clsTestDataAccess.GetByID(TestData))
             {
-                return new clsTest(TestID, clsTestAppointment.Find(TestAppointmentID), TestResult, Notes, clsUser.Find(CreatedByUserID));
+                return new clsTest(TestData);
             }
             else
             {

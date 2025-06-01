@@ -6,7 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-
+using System.Threading;
+using Dotools;
 
 namespace DVLDBusiness
 {
@@ -14,7 +15,7 @@ namespace DVLDBusiness
     {
         public enum enGendor { Male = 0, Female = 1 }
 
-        public int PersonID { get; private set; }
+        public int? PersonID { get; private set; }
         public string NationalNo { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
@@ -25,7 +26,7 @@ namespace DVLDBusiness
         public string Address { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
-        public string NationalityCountry { get; set; }
+        public clsCountry NationalityCountry { get; set; }
         public string ImagePath { get; set; }
       
         public enum enMode { AddNew = 1, Update = 2 }
@@ -47,7 +48,7 @@ namespace DVLDBusiness
             this.Address = string.Empty;
             this.Phone = string.Empty;
             this.Email = string.Empty;
-            this.NationalityCountry = string.Empty;
+            this.NationalityCountry = null;
             this.ImagePath = string.Empty;
 
             Mode = enMode.AddNew;
@@ -55,7 +56,7 @@ namespace DVLDBusiness
 
         protected clsPerson(int PersonID, string NationalNo, string FirstName, string SecondName,
              string ThirdName, string LastName, DateTime DateOfBirth, enGendor Gendor, string Address, string Phone,
-             string Email, string NationalityCountry, string ImagePath)
+             string Email, clsCountry NationalityCountry, string ImagePath)
         {
             this.PersonID = PersonID;
             this.NationalNo = NationalNo;
@@ -70,6 +71,25 @@ namespace DVLDBusiness
             this.Email = Email;
             this.NationalityCountry = NationalityCountry;
             this.ImagePath = ImagePath;
+
+            Mode = enMode.Update;
+        }
+
+        protected clsPerson(clsPersonDataAccess.clsPersonData PersonInfo)
+        {
+            this.PersonID = PersonInfo.PersonID.Value;
+            this.NationalNo = PersonInfo.NationalNo;
+            this.FirstName = PersonInfo.FirstName;
+            this.SecondName = PersonInfo.SecondName;
+            this.ThirdName = PersonInfo.ThirdName;
+            this.LastName = PersonInfo.LastName;
+            this.DateOfBirth = PersonInfo.DateOfBirth;
+            this.Gendor = (enGendor)PersonInfo.Gendor;
+            this.Address = PersonInfo.Address;
+            this.Phone = PersonInfo.Phone;
+            this.Email = PersonInfo.Email;
+            this.NationalityCountry = clsCountry.Find(PersonInfo.CountryID);
+            this.ImagePath = PersonInfo.ImagePath;
 
             Mode = enMode.Update;
         }
@@ -98,21 +118,57 @@ namespace DVLDBusiness
         }
 
         private bool _AddNewPerson()
-        {          
-            this.PersonID = clsPersonDataAccess.AddNewPerson(NationalNo,  FirstName,  SecondName,
-              ThirdName,  LastName,  DateOfBirth, Convert.ToInt16(Gendor),  Address,  Phone,
-              Email,  NationalityCountry,  ImagePath);
+        {
+            clsPersonDataAccess.clsPersonData PersonData
+                = new clsPersonDataAccess.clsPersonData()
+                {
+                    PersonID = null,
+                    NationalNo = NationalNo,
+                    FirstName = FirstName,
+                    SecondName = SecondName,
+                    ThirdName = ThirdName,
+                    LastName = LastName,
+                    Email = Email,
+                    Phone = Phone,
+                    Gendor = Convert.ToByte(Gendor),
+                    Address = Address,
+                    DateOfBirth = DateOfBirth,
+                    CountryID = NationalityCountry.CountryID,
+                    ImagePath = ImagePath,
+                };
+
+            this.PersonID = clsPersonDataAccess.AddNewPerson(PersonData);
 
             return (this.PersonID != -1);
         }
 
         private bool _UpdatePerson()
         {
-            return clsPersonDataAccess.UpdatePerson(PersonID, NationalNo, FirstName, SecondName,
-              ThirdName, LastName, DateOfBirth, Convert.ToInt16(Gendor), Address, Phone,
-              Email, NationalityCountry, ImagePath);
+            clsPersonDataAccess.clsPersonData PersonData
+                = new clsPersonDataAccess.clsPersonData()
+                {
+                    PersonID = PersonID,
+                    NationalNo = NationalNo,
+                    FirstName = FirstName,
+                    SecondName = SecondName,
+                    ThirdName = ThirdName,
+                    LastName = LastName,
+                    Email = Email,
+                    Phone = Phone,
+                    Gendor = Convert.ToByte(Gendor),
+                    Address = Address,
+                    DateOfBirth = DateOfBirth,
+                    CountryID = NationalityCountry.CountryID,
+                    ImagePath = ImagePath
+                };
+
+            return clsPersonDataAccess.UpdatePerson(PersonData);
         }
 
+        /// <summary>
+        /// Saves the object data to the database and works in two modes: Add and Update.
+        /// </summary>
+        /// <returns></returns>
         public bool Save()
         {
             if (!FieldsValidation())
@@ -142,22 +198,13 @@ namespace DVLDBusiness
 
         static public clsPerson Find(int PersonID)
         {
-            string NationalNo = string.Empty, FirstName = string.Empty,
-                SecondName = string.Empty, ThirdName = string.Empty,
-                LastName = string.Empty, Address = string.Empty,
-                Phone = string.Empty, Email = string.Empty, ImagePath = string.Empty,
-                NationalityCountry = string.Empty;
+            clsPersonDataAccess.clsPersonData PersonInfo = new clsPersonDataAccess.clsPersonData();
 
-            DateTime DateOfBirth = DateTime.MinValue;
+            PersonInfo.PersonID = PersonID;
 
-            short Gendor = -1;
-
-            if (clsPersonDataAccess.GetPersonByID(ref PersonID, ref NationalNo, ref FirstName, ref SecondName,
-                ref ThirdName, ref LastName, ref DateOfBirth, ref Gendor,
-                ref Address, ref Phone, ref Email, ref NationalityCountry, ref ImagePath))
+            if (clsPersonDataAccess.GetPersonByID(PersonInfo))
             {
-                return new clsPerson(PersonID, NationalNo, FirstName, SecondName,
-                    ThirdName, LastName, DateOfBirth, (enGendor)Gendor, Address, Phone, Email, NationalityCountry, ImagePath);
+                return new clsPerson(PersonInfo);
             }
             else
             {
@@ -167,24 +214,13 @@ namespace DVLDBusiness
 
         static public clsPerson Find(string NationalNo)
         {
-              string FirstName = string.Empty,
-                SecondName = string.Empty, ThirdName = string.Empty,
-                LastName = string.Empty, Address = string.Empty,
-                Phone = string.Empty, Email = string.Empty, ImagePath = string.Empty,
-                NationalityCountry = string.Empty;
+            clsPersonDataAccess.clsPersonData PersonInfo = new clsPersonDataAccess.clsPersonData();
 
-            DateTime DateOfBirth = DateTime.MinValue;
+            PersonInfo.NationalNo = NationalNo;
 
-            short Gendor = -1;
-
-            int PersonID = -1;
-
-            if (clsPersonDataAccess.GetPersonByNationalNo(ref PersonID, ref NationalNo, ref FirstName, ref SecondName,
-                ref ThirdName, ref LastName, ref DateOfBirth, ref Gendor,
-                ref Address, ref Phone, ref Email, ref NationalityCountry, ref ImagePath))
+            if (clsPersonDataAccess.GetPersonByNationalNo(PersonInfo))
             {
-                return new clsPerson(PersonID, NationalNo, FirstName, SecondName,
-                    ThirdName, LastName, DateOfBirth, (enGendor)Gendor, Address, Phone, Email, NationalityCountry, ImagePath);
+                return new clsPerson(PersonInfo);
             }
             else
             {
@@ -197,9 +233,14 @@ namespace DVLDBusiness
             return clsPersonDataAccess.DeletePerson(PersonID);
         }
 
-        static public DataTable PeopleList(string Filter = "", string ColumnName = "")
+        static public DataTable PeopleList()
         {
-            return clsPersonDataAccess.GetAllPeople(Filter, ColumnName);
+            return clsPersonDataAccess.GetAllPeople();
+        }
+
+        static public DataTable PeopleList(string Value, string FieldName)
+        {
+            return clsPersonDataAccess.GetAllPeople(new clsDataTypes.clsFilterData(Value, FieldName));
         }
 
         static public bool IsPersonExist(int PersonID)

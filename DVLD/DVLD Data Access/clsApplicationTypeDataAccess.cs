@@ -5,118 +5,76 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dotools;
 
 namespace DVLDDataAccess
 {
     public class clsApplicationTypeDataAccess
     {
-        public static bool GetApplicationTypeByID(ref int ApplicationTypeID,
-            ref string Title, ref float Fees)
+        public class clsApplicationTypeData
         {
-            bool IsFound = false;
+            public int? ApplicationTypeID { get; set; }
+            public string ApplicationTypeTitle { get; set; }
+            public decimal ApplicationFees { get; set; }
+        }
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
+        public static bool GetApplicationTypeByID(clsApplicationTypeData ApplicationTypeData)
+        {
             string Query = @"SELECt * FROM ApplicationTypes
                        	     where ApplicationTypeID = @ApplicationTypeID;";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@ApplicationTypeID", ApplicationTypeID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader(Command, ApplicationTypeData);
 
-                if (reader.Read())
-                {
-                    Title = Convert.ToString(reader["ApplicationTypeTitle"]);
-                    Fees = Convert.ToSingle(reader["ApplicationFees"]);
-                    IsFound = true;
-                }
-                else
-                {
-                    IsFound = false;
-                }
-
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                IsFound = false;
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return IsFound;
+            }, Query, new SqlParameter("@ApplicationTypeID", ApplicationTypeData.ApplicationTypeID));
         }
 
-        public static bool UpdateUser(int ApplicationTypeID,
-            string Title, float Fees)
+        public static bool GetApplicationTypeByTitle(clsApplicationTypeData ApplicationTypeData)
         {
-            int RowsAffected = 0;
+            string Query = @"SELECt * FROM ApplicationTypes
+                       	     where ApplicationTypeTitle = @ApplicationTypeTitle;";
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
-            string Query = @"UPDATE [dbo].[ApplicationTypes]
-                             SET [ApplicationTypeTitle] = @ApplicationTypeTitle
-                                ,[ApplicationFees] = @ApplicationFees
-                                 WHERE ApplicationTypeID = @ApplicationTypeID";
-
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@ApplicationTypeID", ApplicationTypeID);
-            command.Parameters.AddWithValue("@ApplicationTypeTitle", Title);
-            command.Parameters.AddWithValue("@ApplicationFees", Fees);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                RowsAffected = command.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
+                return clsAdoQueryExecutor.ExecuteReader(Command, ApplicationTypeData);
 
-            }
-            finally
-            {
-                connection.Close();
-            }
+            }, Query, new SqlParameter("@ApplicationTypeTitle", ApplicationTypeData.ApplicationTypeTitle));
+        }
 
-            return RowsAffected > 0;
+        public static bool Update(clsApplicationTypeData ApplicationTypeData)
+        {
+            string Query = @"UPDATE [dbo].[ApplicationTypes] SET 
+                             [ApplicationTypeTitle] = @ApplicationTypeTitle,
+                             [ApplicationFees] = @ApplicationFees WHERE ApplicationTypeID = @ApplicationTypeID";
+
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
+            {
+                return clsAdoQueryExecutor.ExecuteNonQuery(Command);
+
+            }, Query, ApplicationTypeData) > 0;
         }
 
         public static DataTable GetApplicationTypes()
         {
-            DataTable DT = new DataTable();
-
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
             string Query = @"SELECt * FROM ApplicationTypes;";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader(Command);
 
-                if (reader.HasRows)
-                {
-                    DT.Load(reader);
-                }
-            }
-            catch (Exception ex)
+            }, Query);
+        }
+
+        public static List<string> GetApplicationTypesTitles()
+        {
+            string Query = @"SELECT ApplicationTypeTitle FROM ApplicationTypes;";
+
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
+                return clsAdoQueryExecutor.ExecuteReader<string>(Command, 0);
 
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return DT;
+            }, Query);
         }
     }
 }

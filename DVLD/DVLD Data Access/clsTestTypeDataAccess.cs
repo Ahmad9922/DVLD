@@ -5,121 +5,70 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dotools;
 
 namespace DVLDDataAccess
 {
     public class clsTestTypeDataAccess
     {
-        public static bool GetTestTypeByID(ref int TestTypeID,
-            ref string Title, ref string Description,  ref float Fees)
+        public class clsTestTypeData
         {
-            bool IsFound = false;
+            public int? TestTypeID { get; set; }
+            public string TestTypeTitle { get; set; }
+            public string TestTypeDescription { get; set; }
+            public decimal TestTypeFees { get; set; }
+        }
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
+        public static bool GetTestTypeByID(clsTestTypeData TestTypeData)
+        {
             string Query = @"SELECt * FROM TestTypes
                        	     where TestTypeID = @TestTypeID;";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@TestTypeID", TestTypeID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader(Command, TestTypeData);
 
-                if (reader.Read())
-                {
-                    Title = Convert.ToString(reader["TestTypeTitle"]);
-                    Description = Convert.ToString(reader["TestTypeDescription"]);
-                    Fees = Convert.ToSingle(reader["TestTypeFees"]);
-                    IsFound = true;
-                }
-                else
-                {
-                    IsFound = false;
-                }
-
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                IsFound = false;
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return IsFound;
+            }, Query, new SqlParameter("@TestTypeID", TestTypeData.TestTypeID));
         }
 
-        public static bool UpdateTestType(int TestTypeID,
-            string Title, string Description, float Fees)
+        public static int AddNew(clsTestTypeData TestTypeData)
         {
-            int RowsAffected = 0;
+            string Query = @"INSERT INTO [dbo].[TestTypes] ( 
+                             [TestTypeTitle], [TestTypeDescription], [TestTypeFees])
+                              VALUES ( @TestTypeTitle, @TestTypeDescription, @TestTypeFees)
+                              SELECT SCOPE_IDENTITY();";
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
-            string Query = @"UPDATE [dbo].[TestTypes]
-                             SET [TestTypeTitle] = @TestTypeTitle
-                                ,[TestTypeDescription] = @TestTypeDescription
-                                ,[TestTypeFees] = @TestTypeFees
-                                 WHERE TestTypeID = @TestTypeID";
-
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@TestTypeID", TestTypeID);
-            command.Parameters.AddWithValue("@TestTypeTitle", Title);
-            command.Parameters.AddWithValue("@TestTypeDescription", Description);
-            command.Parameters.AddWithValue("@TestTypeFees", Fees);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                RowsAffected = command.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
+                return Convert.ToInt32(clsAdoQueryExecutor.ExecuteScalar(Command));
 
-            }
-            finally
-            {
-                connection.Close();
-            }
+            }, Query, TestTypeData);
+        }
 
-            return RowsAffected > 0;
+
+        public static bool Update(clsTestTypeData TestTypeData)
+        {
+            string Query = @"UPDATE [dbo].[TestTypes] SET 
+                             [TestTypeTitle] = @TestTypeTitle,
+                             [TestTypeDescription] = @TestTypeDescription,
+                             [TestTypeFees] = @TestTypeFees WHERE TestTypeID = @TestTypeID";
+
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
+            {
+                return clsAdoQueryExecutor.ExecuteNonQuery(Command);
+
+            }, Query, TestTypeData) > 0;
         }
 
         public static DataTable GetTestTypes()
         {
-            DataTable DT = new DataTable();
-
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
             string Query = @"SELECt * FROM TestTypes;";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader(Command);
 
-                if (reader.HasRows)
-                {
-                    DT.Load(reader);
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return DT;
+            }, Query);
         }
     }
 }

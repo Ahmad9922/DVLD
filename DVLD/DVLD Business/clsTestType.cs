@@ -10,42 +10,101 @@ namespace DVLDBusiness
 {
     public class clsTestType
     {
-        public enum enTestType { Vision = 1, Written = 2, Street = 3};
-        public enTestType TestType { get; private set; }
+        public enum enMode { AddNew = 1, Update = 2 }
+        private enMode Mode { get; set; }
 
-        public int TestTypeID { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public float Fees { get; set; }
+        public enum enTestTypeID { None = 0, Vision = 1, Written = 2, Street = 3};
 
-        private clsTestType(int TestTypeID, string Title, string Description, float Fees)
+        public enTestTypeID TestTypeID { get; set; }
+        public string TestTypeTitle { get; set; }
+        public string TestTypeDescription { get; set; }
+        public decimal TestTypeFees { get; set; }
+
+        private clsTestType(enTestTypeID TestTypeID, string Title, string Description, decimal Fees)
         {
             this.TestTypeID = TestTypeID;
-            this.Title = Title;
-            this.Description = Description;
-            this.Fees = Fees;
+            this.TestTypeTitle = Title;
+            this.TestTypeDescription = Description;
+            this.TestTypeFees = Fees;
 
-            TestType = (enTestType)TestTypeID;
+            Mode = enMode.Update;
         }
 
-        private bool _UpdateTestType()
+        private clsTestType(clsTestTypeDataAccess.clsTestTypeData TestTypeData)
         {
-            return clsTestTypeDataAccess.UpdateTestType(TestTypeID, Title, Description, Fees);
+            this.TestTypeID = (enTestTypeID)TestTypeData.TestTypeID.Value;
+            this.TestTypeTitle = TestTypeData.TestTypeTitle;
+            this.TestTypeDescription = TestTypeData.TestTypeDescription;
+            this.TestTypeFees = TestTypeData.TestTypeFees;
+
+            Mode = enMode.Update;
+        }
+
+
+        private bool _AddNew()
+        {
+            clsTestTypeDataAccess.clsTestTypeData TestTypeData
+            = new clsTestTypeDataAccess.clsTestTypeData()
+            {
+                TestTypeID = null,
+                TestTypeTitle = this.TestTypeTitle,
+                TestTypeDescription = this.TestTypeDescription,
+                TestTypeFees = this.TestTypeFees,
+            };
+
+            this.TestTypeID = (enTestTypeID)clsTestTypeDataAccess.AddNew(TestTypeData);
+
+            return (TestTypeID != enTestTypeID.None);
+        }
+
+        private bool _Update()
+        {
+            clsTestTypeDataAccess.clsTestTypeData TestTypeData
+            = new clsTestTypeDataAccess.clsTestTypeData()
+            {
+
+                TestTypeID = Convert.ToInt32(this.TestTypeID),
+                TestTypeTitle = this.TestTypeTitle,
+                TestTypeDescription = this.TestTypeDescription,
+                TestTypeFees = this.TestTypeFees,
+            };
+
+            return clsTestTypeDataAccess.Update(TestTypeData);
         }
 
         public bool Save()
         {
-            return _UpdateTestType();
+            switch (Mode)
+            {
+                case enMode.AddNew:
+
+                    if (_AddNew())
+                    {
+                        Mode = enMode.Update;
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                case enMode.Update:
+
+                    return _Update();
+            }
+
+            return false;
         }
 
-        public static clsTestType Find(int TestTypeID)
+        public static clsTestType Find(enTestTypeID TestTypeID)
         {
-            string Title = string.Empty, Description = string.Empty;
-            float Fees = 0;
+            clsTestTypeDataAccess.clsTestTypeData TestTypeData = new clsTestTypeDataAccess.clsTestTypeData();
 
-            if (clsTestTypeDataAccess.GetTestTypeByID(ref TestTypeID, ref Title, ref Description, ref Fees))
+            TestTypeData.TestTypeID = Convert.ToInt32(TestTypeID);
+
+            if (clsTestTypeDataAccess.GetTestTypeByID(TestTypeData))
             {
-                return new clsTestType(TestTypeID, Title, Description, Fees);
+                return new clsTestType(TestTypeData);
             }
             else
             {
@@ -58,9 +117,9 @@ namespace DVLDBusiness
             return clsTestTypeDataAccess.GetTestTypes();
         }
 
-        public static enTestType GetTestType(int LocalDLAID)
+        public static enTestTypeID GetTestType(int LocalDLAID)
         {
-            return Find((clsLocalDLA.Find(LocalDLAID).PassedTests + 1)).TestType;
+            return Find((enTestTypeID)(clsLocalDLA.Find(LocalDLAID).PassedTests + 1)).TestTypeID;
         }
     }
 }

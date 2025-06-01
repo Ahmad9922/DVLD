@@ -168,3 +168,12 @@ C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\obj\Debug\en-
 C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\obj\Debug\gsw\DVLD.resources.dll
 C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\obj\Debug\aa-DJ\DVLD.resources.dll
 C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\obj\Debug\DVLDPres.C845BEC6.Up2Date
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\obj\Debug\DVLD.UCAddUpdateApplication.resources
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\obj\Debug\DVLD.frmFindPerson.resources
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\obj\Debug\DVLD.UCDriverLicenses.resources
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\bin\Debug\CustomControls.pdb
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\bin\Debug\CustomControls.dll
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\obj\Debug\DVLD.frmApplications.resources
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\obj\Debug\DVLD.frmAddUpdateApplication.resources
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\bin\Debug\Dotools.dll
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Presentation\bin\Debug\Dotools.pdb

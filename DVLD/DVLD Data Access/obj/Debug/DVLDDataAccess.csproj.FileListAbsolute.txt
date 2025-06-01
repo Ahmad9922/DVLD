@@ -4,3 +4,12 @@ E:\Users\الجميع\Desktop\Programming\C#\DVLDDataAccess\obj\Debug\DVLDDataAc
 E:\Users\الجميع\Desktop\Programming\C#\DVLDDataAccess\obj\Debug\DVLDDataAccess.csproj.CoreCompileInputs.cache
 E:\Users\الجميع\Desktop\Programming\C#\DVLDDataAccess\obj\Debug\DVLDDataAccess.dll
 E:\Users\الجميع\Desktop\Programming\C#\DVLDDataAccess\obj\Debug\DVLDDataAccess.pdb
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Data Access\bin\Debug\DVLDDataAccess.dll
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Data Access\bin\Debug\DVLDDataAccess.pdb
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Data Access\obj\Debug\DVLDDataAccess.csproj.AssemblyReference.cache
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Data Access\obj\Debug\DVLDDataAccess.csproj.CoreCompileInputs.cache
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Data Access\obj\Debug\DVLDDataAccess.dll
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Data Access\obj\Debug\DVLDDataAccess.pdb
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Data Access\obj\Debug\DVLDData.AB0BB854.Up2Date
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Data Access\bin\Debug\Dotools.dll
+C:\Users\أحمد\source\repos\DVLD Project\DVLD\DVLD Data Access\bin\Debug\Dotools.pdb

@@ -4,133 +4,55 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dotools;
 
 namespace DVLDDataAccess
 {
     public class clsLicenseClassDataAccess
     {
-        public static bool GetLicenseClassByID(int LicenseClassID, ref string ClassName, ref string ClassDescription,
-           ref short MinimumAllowedAge, ref short DefaultValidityLength, ref float ClassFees)
+        public class clsLicenseClassData
         {
-            bool IsFound = false;
+            public int? LicenseClassID { get; set; }
+            public string ClassName { get; set; }
+            public string ClassDescription { get; set; }
+            public byte MinimumAllowedAge { get; set; }
+            public byte DefaultValidityLength { get; set; }
+            public decimal ClassFees { get; set; }
+        }
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
+        public static bool GetLicenseClassByID(clsLicenseClassData LicenseClassData)
+        {
             string Query = @"SELECt * FROM LicenseClasses
                        	     WHERE LicenseClassID = @LicenseClassID;";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@LicenseClassID", LicenseClassID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader(Command, LicenseClassData);
 
-                if (reader.Read())
-                {
-                    ClassName = Convert.ToString(reader["ClassName"]);
-                    ClassDescription = Convert.ToString(reader["ClassDescription"]);
-                    MinimumAllowedAge = Convert.ToInt16(reader["MinimumAllowedAge"]);
-                    DefaultValidityLength = Convert.ToInt16(reader["DefaultValidityLength"]);
-                    ClassFees = Convert.ToSingle(reader["ClassFees"]);
-                    IsFound = true;
-                }
-                else
-                {
-                    IsFound = false;
-                }
-
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                IsFound = false;
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return IsFound;
+            }, Query, new SqlParameter("@LicenseClassID", LicenseClassData.LicenseClassID));
         }
 
-        public static bool GetLicenseClassByClassName(ref int LicenseClassID, ref string ClassName, ref string ClassDescription,
-           ref short MinimumAllowedAge, ref short DefaultValidityLength, ref float ClassFees)
+        public static bool GetLicenseClassByClassName(clsLicenseClassData LicenseClassData)
         {
-            bool IsFound = false;
-
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
             string Query = @"SELECt * FROM LicenseClasses
                        	     WHERE ClassName = @ClassName;";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@ClassName", ClassName);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader(Command, LicenseClassData);
 
-                if (reader.Read())
-                {
-                    LicenseClassID = Convert.ToInt32(reader["LicenseClassID"]);
-                    ClassDescription = Convert.ToString(reader["ClassDescription"]);
-                    MinimumAllowedAge = Convert.ToInt16(reader["MinimumAllowedAge"]);
-                    DefaultValidityLength = Convert.ToInt16(reader["DefaultValidityLength"]);
-                    ClassFees = Convert.ToSingle(reader["ClassFees"]);
-                    IsFound = true;
-                }
-                else
-                {
-                    IsFound = false;
-                }
-
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                IsFound = false;
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return IsFound;
+            }, Query, new SqlParameter("@ClassName", LicenseClassData.ClassName));
         }
 
         public static List<string> GetAllLicenseClasses()
         {
-            List<string> lLicenseClasses = new List<string>();
+            string Query = @"SELECT ClassName FROM LicenseClasses;";
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
-            string Query = @"SELECT * FROM LicenseClasses;";
-
-            SqlCommand command = new SqlCommand(Query, connection);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader<string>(Command, 0);
 
-                while (reader.Read())
-                {
-                    lLicenseClasses.Add(Convert.ToString(reader["ClassName"]));
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return lLicenseClasses;
+            }, Query);
         }
     }
 }

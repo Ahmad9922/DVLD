@@ -1,170 +1,77 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using Dotools;
 
 namespace DVLDDataAccess
 {
     public class clsApplicationDataAccess
     {
-        public static bool GetApplicationByID(ref int ApplicationID, ref int ApplicantPersonID, ref DateTime ApplicationDate,
-            ref int ApplicationTypeID, ref short ApplicationStatus, ref DateTime LastStatusDate, ref float PaidFees, ref int CreatedByUserID)
+        public class clsApplicationData
         {
-            bool IsFound = false;
+            public int? ApplicationID { get; set; }
+            public int ApplicantPersonID { get; set; }
+            public DateTime ApplicationDate { get; set; }
+            public int ApplicationTypeID { get; set; }
+            public byte ApplicationStatus { get; set; }
+            public DateTime LastStatusDate { get; set; }
+            public decimal PaidFees { get; set; }
+            public int CreatedByUserID { get; set; }
+        }
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
+        public static bool GetApplicationByID(clsApplicationData ApplicationData)
+        {
             string Query = @"SELECT * FROM Applications
                              WHERE ApplicationID = @ApplicationID";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@ApplicationID", ApplicationID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader(Command, ApplicationData);
 
-                if (reader.Read())
-                {
-                    ApplicantPersonID = Convert.ToInt32(reader["ApplicantPersonID"]);
-                    ApplicationDate = Convert.ToDateTime(reader["ApplicationDate"]);
-                    ApplicationTypeID = Convert.ToInt32(reader["ApplicationTypeID"]);
-                    ApplicationStatus = Convert.ToInt16(reader["ApplicationStatus"]);
-                    LastStatusDate = Convert.ToDateTime(reader["LastStatusDate"]);
-                    PaidFees = Convert.ToSingle(reader["PaidFees"]);
-                    CreatedByUserID = Convert.ToInt32(reader["CreatedByUserID"]);
-                    IsFound = true;
-                }
-                else
-                {
-                    IsFound = false;
-                }
-
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                IsFound = false;
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return IsFound;
+            }, Query, new SqlParameter("@ApplicationID", ApplicationData.ApplicationID));
         }
 
-        public static int AddNewApplication(int ApplicantPersonID, DateTime ApplicationDate,
-            int ApplicationTypeID, short ApplicationStatus, DateTime LastStatusDate, float PaidFees, int CreatedByUserID)
+        public static int Add(clsApplicationData ApplicationData)
         {
-            int ApplicationID = -1;
+            string Query = @"INSERT INTO [dbo].[Applications] ( 
+                             [ApplicantPersonID], [ApplicationDate], [ApplicationTypeID], [ApplicationStatus], [LastStatusDate], [PaidFees], [CreatedByUserID])
+                              VALUES ( @ApplicantPersonID, @ApplicationDate, @ApplicationTypeID, @ApplicationStatus, @LastStatusDate, @PaidFees, @CreatedByUserID)
+                              SELECT SCOPE_IDENTITY();";
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
-            string Query = @"INSERT INTO [dbo].[Applications]
-           ([ApplicantPersonID]
-           ,[ApplicationDate]
-           ,[ApplicationTypeID]
-           ,[ApplicationStatus]
-           ,[LastStatusDate]
-           ,[PaidFees]
-           ,[CreatedByUserID])
-     VALUES
-           (@ApplicantPersonID
-           ,@ApplicationDate
-           ,@ApplicationTypeID
-           ,@ApplicationStatus
-           ,@LastStatusDate
-           ,@PaidFees
-           ,@CreatedByUserID)
-            SELECT SCOPE_IDENTITY();";
-
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@ApplicantPersonID", ApplicantPersonID);
-            command.Parameters.AddWithValue("@ApplicationDate", ApplicationDate);
-            command.Parameters.AddWithValue("@ApplicationTypeID", ApplicationTypeID);
-            command.Parameters.AddWithValue("@ApplicationStatus", ApplicationStatus);
-            command.Parameters.AddWithValue("@LastStatusDate", LastStatusDate);
-            command.Parameters.AddWithValue("@PaidFees", PaidFees);
-            command.Parameters.AddWithValue("@CreatedByUserID", CreatedByUserID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                object Result = command.ExecuteScalar();
+                return Convert.ToInt32(clsAdoQueryExecutor.ExecuteScalar(Command));
 
-                if (Result != null && int.TryParse(Result.ToString(), out int InsertedID))
-                {
-                    ApplicationID = InsertedID;
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return ApplicationID;
+            }, Query, ApplicationData);
         }
 
-        public static bool UpdateApplication(int ApplicationID, int ApplicantPersonID, DateTime ApplicationDate,
-            int ApplicationTypeID, short ApplicationStatus, DateTime LastStatusDate, float PaidFees, int CreatedByUserID)
+
+        public static bool Update(clsApplicationData ApplicationData)
         {
-            int RowsAffected = 0;
+            string Query = @"UPDATE [dbo].[Applications] SET
+                             [ApplicantPersonID] = @ApplicantPersonID,
+                             [ApplicationDate] = @ApplicationDate,
+                             [ApplicationTypeID] = @ApplicationTypeID,
+                             [ApplicationStatus] = @ApplicationStatus,
+                             [LastStatusDate] = @LastStatusDate,
+                             [PaidFees] = @PaidFees,
+                             [CreatedByUserID] = @CreatedByUserID WHERE ApplicationID = @ApplicationID";
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
-            string Query = @"UPDATE [dbo].[Applications]
-                             SET [ApplicantPersonID] = @ApplicantPersonID
-                                ,[ApplicationDate] = @ApplicationDate
-                                ,[ApplicationTypeID] = @ApplicationTypeID
-                                ,[ApplicationStatus] = @ApplicationStatus
-                                ,[LastStatusDate] = @LastStatusDate
-                                ,[PaidFees] = @PaidFees
-                                ,[CreatedByUserID] = @CreatedByUserID
-                             WHERE ApplicationID = @ApplicationID;";
-
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@ApplicationID", ApplicationID);
-            command.Parameters.AddWithValue("@ApplicantPersonID", ApplicantPersonID);
-            command.Parameters.AddWithValue("@ApplicationDate", ApplicationDate);
-            command.Parameters.AddWithValue("@ApplicationTypeID", ApplicationTypeID);
-            command.Parameters.AddWithValue("@ApplicationStatus", ApplicationStatus);
-            command.Parameters.AddWithValue("@LastStatusDate", LastStatusDate);
-            command.Parameters.AddWithValue("@PaidFees", PaidFees);
-            command.Parameters.AddWithValue("@CreatedByUserID", CreatedByUserID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                RowsAffected = command.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
+                return clsAdoQueryExecutor.ExecuteNonQuery(Command);
 
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return RowsAffected > 0;
+            }, Query, ApplicationData) > 0;
         }
 
         public static bool CancelApplication(int ApplicationID)
         {
-            int RowsAffected = 0;
-
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
             string Query = @"IF ((SELECT ApplicationStatus FROM Applications WHERE ApplicationID = @ApplicationID) != 3)
                              BEGIN
                              UPDATE [dbo].[Applications]
@@ -176,85 +83,85 @@ namespace DVLDDataAccess
 
                              END";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@ApplicationID", ApplicationID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                RowsAffected = command.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
+                return clsAdoQueryExecutor.ExecuteNonQuery(Command);
 
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return RowsAffected > 0;
+            }, Query, new SqlParameter("@ApplicationID", ApplicationID)) > 0;
         }
 
         public static bool IsApplicationCancelled(int ApplicationID)
         {
-            object Result = null;
-
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
             string Query = @"SELECT R = 1 FROM Applications
-                             WHERE ApplicationID = @ApplicationID 
+                             WHERE ApplicationID = @ApplicationID
                              AND Applications.ApplicationStatus = 2;";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@ApplicationID", ApplicationID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                Result = command.ExecuteScalar();
-            }
-            catch (Exception ex)
-            {
+                return clsAdoQueryExecutor.ExecuteScalar(Command);
 
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return Result != null;
+            }, Query, new SqlParameter("@ApplicationID", ApplicationID)) != null;
         }
 
         public static bool IsApplicationCompleted(int ApplicationID)
         {
-            object Result = null;
-
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
             string Query = @"SELECT R = 1 FROM Applications
                              WHERE ApplicationID = @ApplicationID 
                              AND Applications.ApplicationStatus = 3;";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@ApplicationID", ApplicationID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                Result = command.ExecuteScalar();
-            }
-            catch (Exception ex)
-            {
+                return clsAdoQueryExecutor.ExecuteScalar(Command);
 
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return Result != null;
+            }, Query, new SqlParameter("@ApplicationID", ApplicationID)) != null;
         }
 
+        public static DataTable GetApplications()
+        {
+            string Query = @"SELECT * FROM ( SELECT ApplicationID AS [Application ID], CONCAT_WS(' ', FirstName, SecondName, ThirdName, LastName) AS [Full Name],
+                                             ApplicationDate AS [Application Date], ApplicationTypeTitle AS [Application Type Title],
+                                             
+                                             CASE
+                                             WHEN ApplicationStatus = 1 THEN 'New'
+                                             WHEN ApplicationStatus = 2 THEN 'Cancelled'
+                                             WHEN ApplicationStatus = 3 THEN 'Completed'
+                                             END AS [Application Status], PaidFees AS [Paid Fees], UserName AS [Created By User]
+                                             
+                                             FROM Applications INNER JOIN
+                                             People ON Applications.ApplicantPersonID = People.PersonID INNER JOIN
+                                             ApplicationTypes ON Applications.ApplicationTypeID = ApplicationTypes.ApplicationTypeID INNER JOIN
+                                             Users ON Applications.CreatedByUserID = Users.UserID ) Applications_View";
+
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
+            {
+                return clsAdoQueryExecutor.ExecuteReader(Command);
+
+            }, Query);
+
+        }
+
+        public static DataTable GetApplications(clsDataTypes.clsFilterData FilterData)
+        {
+            string Query = @"SELECT * FROM ( SELECT ApplicationID AS [Application ID], CONCAT_WS(' ', FirstName, SecondName, ThirdName, LastName) AS [Full Name],
+                                             ApplicationDate AS [Application Date], ApplicationTypeTitle AS [Application Type Title],
+                                             
+                                             CASE
+                                             WHEN ApplicationStatus = 1 THEN 'New'
+                                             WHEN ApplicationStatus = 2 THEN 'Cancelled'
+                                             WHEN ApplicationStatus = 3 THEN 'Completed'
+                                             END AS [Application Status], PaidFees AS [Paid Fees], UserName AS [Created By User]
+                                             
+                                             FROM Applications INNER JOIN
+                                             People ON Applications.ApplicantPersonID = People.PersonID INNER JOIN
+                                             ApplicationTypes ON Applications.ApplicationTypeID = ApplicationTypes.ApplicationTypeID INNER JOIN
+                                             Users ON Applications.CreatedByUserID = Users.UserID ) Applications_View";
+
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
+            {
+                return clsAdoQueryExecutor.ExecuteReader(Command, FilterData);
+
+            }, Query);
+
+        }
     }
 }

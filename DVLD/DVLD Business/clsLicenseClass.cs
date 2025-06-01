@@ -9,14 +9,26 @@ namespace DVLDBusiness
 {
     public class clsLicenseClass
     {
-        public int LicenseClassID {  get; set; }
+        public enum enLicenseClassID
+        {
+            None = 0,
+            Class1SmallMotorcycle = 1,
+            Class2HeavyMotorcycle = 2,
+            Class3Ordinary = 3,
+            Class4Commercial = 4,
+            Class5Agricultural = 5,
+            Class6SmallAndMediumBus = 6,
+            Class7TruckAndHeavyVehicle = 7,
+        }
+
+        public enLicenseClassID LicenseClassID {  get; set; }
         public string ClassName { get; set; }
         public string ClassDescription { get; set; }
         public short MinimumAllowedAge { get; set; }
         public short DefaultValidityLength { get; set; }
-        public float ClassFees { get; set; }
+        public decimal ClassFees { get; set; }
 
-        private clsLicenseClass(int LicenseClassID, string ClassName, string ClassDescription, short MinimumAllowedAge, short DefaultValidityLength, float ClassFees)
+        private clsLicenseClass(enLicenseClassID LicenseClassID, string ClassName, string ClassDescription, short MinimumAllowedAge, short DefaultValidityLength, decimal ClassFees)
         {
             this.LicenseClassID = LicenseClassID;
             this.ClassName = ClassName;
@@ -26,17 +38,16 @@ namespace DVLDBusiness
             this.ClassFees = ClassFees;
         }
 
-        static public clsLicenseClass Find(int LicenseClassID)
+        static public clsLicenseClass Find(enLicenseClassID LicenseClassID)
         {
-            string ClassName = string.Empty, ClassDescription = string.Empty;
-            short MinimumAllowedAge = 0, DefaultValidityLength = 0;
-            float ClassFees = 0;
+            clsLicenseClassDataAccess.clsLicenseClassData LicenseClassData = new clsLicenseClassDataAccess.clsLicenseClassData();
 
-            if (clsLicenseClassDataAccess.GetLicenseClassByID(LicenseClassID, ref ClassName, ref ClassDescription, 
-                ref MinimumAllowedAge, ref DefaultValidityLength, ref ClassFees))
+            LicenseClassData.LicenseClassID = Convert.ToInt32(LicenseClassID);
+
+            if (clsLicenseClassDataAccess.GetLicenseClassByID(LicenseClassData))
             {
-                return new clsLicenseClass(LicenseClassID, ClassName, ClassDescription, MinimumAllowedAge,
-                    DefaultValidityLength, ClassFees);
+                return new clsLicenseClass(LicenseClassID, LicenseClassData.ClassName, LicenseClassData.ClassDescription, LicenseClassData.MinimumAllowedAge,
+                    LicenseClassData.DefaultValidityLength, LicenseClassData.ClassFees);
             }
             else
             {
@@ -46,17 +57,14 @@ namespace DVLDBusiness
 
         static public clsLicenseClass Find(string ClassName)
         {
-            int LicenseClassID = -1;
+            clsLicenseClassDataAccess.clsLicenseClassData LicenseClassData = new clsLicenseClassDataAccess.clsLicenseClassData();
 
-            string ClassDescription = string.Empty;
-            short MinimumAllowedAge = 0, DefaultValidityLength = 0;
-            float ClassFees = 0;
+            LicenseClassData.ClassName = ClassName;
 
-            if (clsLicenseClassDataAccess.GetLicenseClassByClassName(ref LicenseClassID, ref ClassName, ref ClassDescription,
-                ref MinimumAllowedAge, ref DefaultValidityLength, ref ClassFees))
+            if (clsLicenseClassDataAccess.GetLicenseClassByClassName(LicenseClassData))
             {
-                return new clsLicenseClass(LicenseClassID, ClassName, ClassDescription, MinimumAllowedAge,
-                    DefaultValidityLength, ClassFees);
+                return new clsLicenseClass((enLicenseClassID)LicenseClassData.LicenseClassID, LicenseClassData.ClassName, LicenseClassData.ClassDescription, LicenseClassData.MinimumAllowedAge,
+                    LicenseClassData.DefaultValidityLength, LicenseClassData.ClassFees);
             }
             else
             {
@@ -64,7 +72,7 @@ namespace DVLDBusiness
             }
         }
 
-        static public int GetID(string ClassName)
+        static public enLicenseClassID GetID(string ClassName)
         {
             return clsLicenseClass.Find(ClassName).LicenseClassID;
         }

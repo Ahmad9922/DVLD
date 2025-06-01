@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dotools">
+      <HintPath>..\..\..\Dotools\Dotools\bin\Debug\Dotools.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -43,6 +46,7 @@
   <ItemGroup>
     <Compile Include="clsApplication.cs" />
     <Compile Include="clsApplicationType.cs" />
+    <Compile Include="clsBusinessUtility.cs" />
     <Compile Include="clsCountry.cs" />
     <Compile Include="clsDetain.cs" />
     <Compile Include="clsDriver.cs" />
@@ -59,7 +63,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DVLDDataAccess\DVLDDataAccess.csproj">
+    <ProjectReference Include="..\DVLD Data Access\DVLDDataAccess.csproj">
       <Project>{1ee141fb-f5ef-4e4a-b947-063ee100d9a1}</Project>
       <Name>DVLDDataAccess</Name>
     </ProjectReference>

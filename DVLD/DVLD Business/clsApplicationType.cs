@@ -12,20 +12,49 @@ namespace DVLDBusiness
 {
     public class clsApplicationType
     {
-        public int ApplicationTypeID {  get; set; }
-        public string Title { get; set; }
-        public float Fees { get; set; }
+        public enum enApplicationTypeID
+        {
+            None = 0,
+            NewLocalDrivingLicenseService = 1,
+            RenewDrivingLicenseService = 2,
+            ReplacementforaLostDrivingLicense = 3,
+            ReplacementforaDamagedDrivingLicense = 4,
+            ReleaseDetainedDrivingLicsense = 5,
+            NewInternationalLicense = 6,
+            RetakeTest = 7
+        }
 
-        private clsApplicationType(int ApplicationTypeID, string Title, float Fees)
+        public enApplicationTypeID ApplicationTypeID {  get; protected set; }
+        public string ApplicationTypeTitle { get; set; }
+        public decimal ApplicationFees { get; set; }
+
+        private clsApplicationType(enApplicationTypeID ApplicationTypeID, string Title, decimal Fees)
         {
             this.ApplicationTypeID = ApplicationTypeID;
-            this.Title = Title;
-            this.Fees = Fees;
+            this.ApplicationTypeTitle = Title;
+            this.ApplicationFees = Fees;
         }
+
+        private clsApplicationType(clsApplicationTypeDataAccess.clsApplicationTypeData ApplicationTypeData)
+        {
+            this.ApplicationTypeID = (enApplicationTypeID)ApplicationTypeData.ApplicationTypeID;
+            this.ApplicationTypeTitle = ApplicationTypeData.ApplicationTypeTitle;
+            this.ApplicationFees = ApplicationTypeData.ApplicationFees;
+        }
+
 
         private bool _UpdateApplicationType()
         {
-            return clsApplicationTypeDataAccess.UpdateUser(ApplicationTypeID, Title, Fees);
+            clsApplicationTypeDataAccess.clsApplicationTypeData ApplicationTypeData
+            = new clsApplicationTypeDataAccess.clsApplicationTypeData()
+            {
+                ApplicationTypeID = Convert.ToInt32(this.ApplicationTypeID),
+                ApplicationTypeTitle = this.ApplicationTypeTitle,
+                ApplicationFees = this.ApplicationFees,
+            };
+
+            return clsApplicationTypeDataAccess.Update(ApplicationTypeData);
+
         }
 
         public bool Save()
@@ -33,14 +62,31 @@ namespace DVLDBusiness
             return _UpdateApplicationType();
         }
 
-        public static clsApplicationType Find(int ApplicationTypeID)
+        public static clsApplicationType Find(enApplicationTypeID ApplicationTypeID)
         {
-            string Title = string.Empty;
-            float Fees = 0;
+            clsApplicationTypeDataAccess.clsApplicationTypeData ApplicationTypeData = new clsApplicationTypeDataAccess.clsApplicationTypeData();
 
-            if (clsApplicationTypeDataAccess.GetApplicationTypeByID(ref ApplicationTypeID, ref Title, ref Fees))
+            ApplicationTypeData.ApplicationTypeID = Convert.ToInt32(ApplicationTypeID);
+
+            if (clsApplicationTypeDataAccess.GetApplicationTypeByID(ApplicationTypeData))
             {
-                return new clsApplicationType(ApplicationTypeID, Title, Fees);
+                return new clsApplicationType(ApplicationTypeID, ApplicationTypeData.ApplicationTypeTitle, ApplicationTypeData.ApplicationFees);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static clsApplicationType Find(string ApplicationTypeTitle)
+        {
+            clsApplicationTypeDataAccess.clsApplicationTypeData ApplicationTypeData = new clsApplicationTypeDataAccess.clsApplicationTypeData();
+
+            ApplicationTypeData.ApplicationTypeTitle = ApplicationTypeTitle;
+
+            if (clsApplicationTypeDataAccess.GetApplicationTypeByTitle(ApplicationTypeData))
+            {
+                return new clsApplicationType(ApplicationTypeData);
             }
             else
             {
@@ -51,6 +97,11 @@ namespace DVLDBusiness
         public static DataTable GetApplicationTypesList()
         {
             return clsApplicationTypeDataAccess.GetApplicationTypes();
+        }
+
+        public static List<string> GetApplicationTypesTitles()
+        {
+            return clsApplicationTypeDataAccess.GetApplicationTypesTitles();
         }
     }
 }

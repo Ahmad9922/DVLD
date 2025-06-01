@@ -8,7 +8,7 @@ namespace DVLDBusiness
 {
     public abstract class clsLicense
     {
-        public int LicenseID { get; set; }
+        public int? LicenseID { get; set; }
         public clsApplication Application { get; set; }
         public clsDriver Driver { get; set; }
         public clsLicenseClass LicenseClass { get; set; }

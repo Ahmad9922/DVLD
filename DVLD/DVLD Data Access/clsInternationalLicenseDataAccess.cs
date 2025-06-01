@@ -5,191 +5,107 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dotools;
+
 
 namespace DVLDDataAccess
 {
     public class clsInternationalLicenseDataAccess
     {
-        public static bool GetInternationalLicenseByID(int InternationalLicenseID, ref int ApplicationID,
-            ref int DriverID, ref int IssuedUsingLocalLicenseID, ref DateTime IssueDate, ref DateTime ExpirationDate,
-            ref bool IsActive, ref int CreatedByUserID)
+        public class clsInternationalLicenseData
         {
-            bool IsFound = false;
+            public int? InternationalLicenseID { get; set; }
+            public int ApplicationID { get; set; }
+            public int DriverID { get; set; }
+            public int IssuedUsingLocalLicenseID { get; set; }
+            public DateTime IssueDate { get; set; }
+            public DateTime ExpirationDate { get; set; }
+            public bool IsActive { get; set; }
+            public int CreatedByUserID { get; set; }
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+        }
 
+        public static bool GetInternationalLicenseByID(clsInternationalLicenseData InternationalLicenseData)
+        {
             string Query = @"SELECT * FROM InternationalLicenses
                        	     where InternationalLicenseID = @InternationalLicenseID;";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@InternationalLicenseID", InternationalLicenseID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader(Command, InternationalLicenseData);
 
-                if (reader.Read())
-                {
-                    ApplicationID = Convert.ToInt32(reader["ApplicationID"]);
-                    DriverID = Convert.ToInt32(reader["DriverID"]);
-                    IssuedUsingLocalLicenseID = Convert.ToInt32(reader["IssuedUsingLocalLicenseID"]);
-                    IssueDate = Convert.ToDateTime(reader["IssueDate"]);
-                    ExpirationDate = Convert.ToDateTime(reader["ExpirationDate"]);
-                    IsActive = Convert.ToBoolean(reader["IsActive"]);
-                    CreatedByUserID = Convert.ToInt32(reader["CreatedByUserID"]);
-                    IsFound = true;
-                }
-                else
-                {
-                    IsFound = false;
-                }
-
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                IsFound = false;
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return IsFound;
+            }, Query, new SqlParameter("@InternationalLicenseID", InternationalLicenseData.InternationalLicenseID));
         }
 
-        public static int IssueInternationalDrivingLicense(int ApplicationID,
-            int IssuedUsingLocalLicenseID, int CreatedByUserID)
+        public static int Add(clsInternationalLicenseData InternationalLicenseData)
         {
-            int LicenseID = -1;
+            string Query = @"INSERT INTO [dbo].[InternationalLicenses] ( 
+            [ApplicationID], [DriverID], [IssuedUsingLocalLicenseID], [IssueDate], [ExpirationDate], [IsActive], [CreatedByUserID])
+             VALUES ( @ApplicationID, @DriverID, @IssuedUsingLocalLicenseID, @IssueDate, @ExpirationDate, @IsActive, @CreatedByUserID)
+             SELECT SCOPE_IDENTITY();";
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
-            string Query = @"INSERT INTO [dbo].[InternationalLicenses]
-                             ([ApplicationID]
-                             ,[DriverID]
-                             ,[IssuedUsingLocalLicenseID]
-                             ,[IssueDate]
-                             ,[ExpirationDate]
-                             ,[IsActive]
-                             ,[CreatedByUserID])
-                             VALUES
-                             (@ApplicationID
-                             ,(SELECT DriverID FROM Licenses WHERE LicenseID = @IssuedUsingLocalLicenseID)
-                             ,@IssuedUsingLocalLicenseID
-                             ,GETDATE()
-                             ,DATEADD(YEAR, 1, GETDATE())
-                             ,1
-                             ,@CreatedByUserID)
-                             SELECT SCOPE_IDENTITY();
-
-                             UPDATE Applications SET ApplicationStatus = 3, LastStatusDate = GETDATE()
-                             WHERE ApplicationID = @ApplicationID";
-
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@ApplicationID", ApplicationID);
-            command.Parameters.AddWithValue("@IssuedUsingLocalLicenseID", IssuedUsingLocalLicenseID);
-            command.Parameters.AddWithValue("@CreatedByUserID", CreatedByUserID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                object Result = command.ExecuteScalar();
+                return Convert.ToInt32(clsAdoQueryExecutor.ExecuteScalar(Command));
 
-                if (Result != null && int.TryParse(Result.ToString(), out int InsertedID))
-                {
-                    LicenseID = InsertedID;
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return LicenseID;
+            }, Query, InternationalLicenseData);
         }
 
-        public static bool IsInternationalDrivingLicenseIssued(int LicenseID)
+        public static bool Update(clsInternationalLicenseData InternationalLicenseData)
         {
-            object Result = null;
+            string Query = @"UPDATE [dbo].[InternationalLicenses] SET 
+                             [ApplicationID] = @ApplicationID,
+                             [DriverID] = @DriverID,
+                             [IssuedUsingLocalLicenseID] = @IssuedUsingLocalLicenseID,
+                             [IssueDate] = @IssueDate,
+                             [ExpirationDate] = @ExpirationDate,
+                             [IsActive] = @IsActive,
+                             [CreatedByUserID] = @CreatedByUserID WHERE InternationalLicenseID = @InternationalLicenseID";
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
+            {
+                return clsAdoQueryExecutor.ExecuteNonQuery(Command);
 
+            }, Query, InternationalLicenseData) > 0;
+        }
+
+        public static bool IsInternationalDrivingLicenseIssued(int IssuedUsingLocalLicenseID)
+        {
             string Query = @"Select R = 1 From InternationalLicenses Where IssuedUsingLocalLicenseID = @IssuedUsingLocalLicenseID";
 
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@IssuedUsingLocalLicenseID", LicenseID);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                Result = command.ExecuteScalar();
-            }
-            catch (Exception ex)
-            {
+                return clsAdoQueryExecutor.ExecuteScalar(Command);
 
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return Result != null;
+            }, Query, new SqlParameter("@IssuedUsingLocalLicenseID", IssuedUsingLocalLicenseID)) != null;
         }
 
-        static private string GetFilteringQueryByColumns(string ColumnName)
+        public static DataTable GetLicenseList()
         {
             string Query = @"SELECT InternationalLicenseID AS [Int License ID], ApplicationID AS [Application ID],
                              DriverID AS [Driver ID], IssuedUsingLocalLicenseID AS [L License ID], IssueDate AS [Issue Date],
                              ExpirationDate AS [Expiration Date], IsActive AS [Is Active]
-                             FROM InternationalLicenses ";
+                             FROM InternationalLicenses;";
 
-            if (ColumnName == "DriverID")
-                return Query += "WHERE DriverID LIKE '%' + @Value + '%';";
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
+            {
+                return clsAdoQueryExecutor.ExecuteReader(Command);
 
-            if (ColumnName == "IsActive")
-                return Query += "WHERE IsActive LIKE '%' + @Value + '%';";
-
-            return Query;
+            }, Query);
         }
 
-        public static DataTable GetLicenseList(string Value = "", string ColumnName = "")
+        public static DataTable GetLicenseList(clsDataTypes.clsFilterData FilterData)
         {
-            DataTable DT = new DataTable();
+            string Query = @"SELECT * FROM ( SELECT InternationalLicenseID AS [Int License ID], ApplicationID AS [Application ID],
+                             DriverID AS [Driver ID], IssuedUsingLocalLicenseID AS [L License ID], IssueDate AS [Issue Date],
+                             ExpirationDate AS [Expiration Date], IsActive AS [Is Active]
+                             FROM InternationalLicenses ) InternationalLicenses_View ";
 
-            SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
-
-            string Query = GetFilteringQueryByColumns(ColumnName);
-
-            SqlCommand command = new SqlCommand(Query, connection);
-            command.Parameters.AddWithValue("@Value", Value);
-
-            try
+            return clsAdoQueryExecutor.ExecuteQuery(Command =>
             {
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
+                return clsAdoQueryExecutor.ExecuteReader(Command, FilterData);
 
-                if (reader.HasRows)
-                {
-                    DT.Load(reader);
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-            finally
-            {
-                connection.Close();
-            }
-
-            return DT;
+            }, Query);
         }
-
     }
 }

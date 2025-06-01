@@ -1,11 +1,13 @@
 ﻿using DVLDDataAccess;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using Dotools;
 using static DVLDBusiness.clsPerson;
 
 namespace DVLDBusiness
@@ -14,26 +16,27 @@ namespace DVLDBusiness
     {
         public enum enApplicationStatus { New = 1, Completed = 3, Canceled = 2 }
 
-        public int ApplicationID { get; set; }
-        public clsPerson ApplicantPerson { get; protected set; }
+        public int? ApplicationID { get; protected set; }
+        public clsPerson ApplicantPerson { get; set; }
         public DateTime ApplicationDate { get; set; }
-        public clsApplicationType ApplicationType { get; protected set; }
+        public clsApplicationType ApplicationType { get; set; }
         public enApplicationStatus ApplicationStatus { get; protected set; }
         public DateTime LastStatusDate { get; set; }
-        public float PaidFees { get; set; }
+        public decimal PaidFees { get; set; }
         public clsUser CreatedByUser { get; protected set; }
 
         public enum enMode { AddNew = 1, Update = 2 }
         public enMode Mode { get; protected set; }
 
+
         public clsApplication(clsPerson ApplicantPerson, clsApplicationType ApplicationType, clsUser CreatedByUser) 
         {
-            this.ApplicationID = -1;
+            this.ApplicationID = null;
             this.ApplicationDate = DateTime.Now;
             this.ApplicationStatus = enApplicationStatus.New;
             this.LastStatusDate = this.ApplicationDate;
 
-            this.PaidFees = ApplicationType.Fees;
+            this.PaidFees = ApplicationType.ApplicationFees;
             this.CreatedByUser = CreatedByUser;
             this.ApplicationType = ApplicationType;
             this.ApplicantPerson = ApplicantPerson;
@@ -56,7 +59,7 @@ namespace DVLDBusiness
         }
 
         protected clsApplication(int ApplicationID, clsPerson ApplicantPerson, DateTime ApplicationDate, clsApplicationType ApplicationType,
-            enApplicationStatus ApplicationStatus, DateTime LastStatusDate, float PaidFees, clsUser CreatedByUser)
+            enApplicationStatus ApplicationStatus, DateTime LastStatusDate, decimal PaidFees, clsUser CreatedByUser)
         {
             this.ApplicationID = ApplicationID;
             this.ApplicantPerson = ApplicantPerson;
@@ -70,18 +73,38 @@ namespace DVLDBusiness
             Mode = enMode.Update;
         }
 
-        protected virtual bool _AddNewApplication()
+        protected bool _Add()
         {
-           this.ApplicationID = clsApplicationDataAccess.AddNewApplication(this.ApplicantPerson.PersonID, this.ApplicationDate, this.ApplicationType.ApplicationTypeID, 
-               Convert.ToInt16(this.ApplicationStatus), this.LastStatusDate, this.PaidFees, this.CreatedByUser.UserID);
+            clsApplicationDataAccess.clsApplicationData ApplicationData = new clsApplicationDataAccess.clsApplicationData();
 
-            return this.ApplicationID != -1;
+            ApplicationData.ApplicationID = ApplicationID;
+            ApplicationData.ApplicantPersonID = ApplicantPerson.PersonID.Value;
+            ApplicationData.ApplicationDate = ApplicationDate;
+            ApplicationData.ApplicationTypeID = Convert.ToInt32(ApplicationType.ApplicationTypeID);
+            ApplicationData.ApplicationStatus = Convert.ToByte(ApplicationStatus);
+            ApplicationData.LastStatusDate = LastStatusDate;
+            ApplicationData.PaidFees = PaidFees;
+            ApplicationData.CreatedByUserID = CreatedByUser.UserID.Value;
+
+            this.ApplicationID = clsApplicationDataAccess.Add(ApplicationData);
+
+            return this.ApplicationID != null;
         }
 
-        protected virtual bool _UpdateApplication()
+        protected bool _Update()
         {
-            return clsApplicationDataAccess.UpdateApplication(this.ApplicationID, this.ApplicantPerson.PersonID, this.ApplicationDate, this.ApplicationType.ApplicationTypeID,
-                Convert.ToInt16(this.ApplicationStatus), this.LastStatusDate, this.PaidFees, this.CreatedByUser.UserID);
+            clsApplicationDataAccess.clsApplicationData ApplicationData = new clsApplicationDataAccess.clsApplicationData();
+
+            ApplicationData.ApplicationID = ApplicationID;
+            ApplicationData.ApplicantPersonID = ApplicantPerson.PersonID.Value;
+            ApplicationData.ApplicationDate = ApplicationDate;
+            ApplicationData.ApplicationTypeID = Convert.ToInt32(ApplicationType.ApplicationTypeID);
+            ApplicationData.ApplicationStatus = Convert.ToByte(ApplicationStatus);
+            ApplicationData.LastStatusDate = LastStatusDate;
+            ApplicationData.PaidFees = PaidFees;
+            ApplicationData.CreatedByUserID = CreatedByUser.UserID.Value;
+
+            return clsApplicationDataAccess.Update(ApplicationData);
         }
 
         public virtual bool Save()
@@ -90,7 +113,7 @@ namespace DVLDBusiness
             {
                 case enMode.AddNew:
 
-                    if (_AddNewApplication())
+                    if (_Add())
                     {
                         Mode = enMode.Update;
                         return true;
@@ -102,7 +125,7 @@ namespace DVLDBusiness
 
                 case enMode.Update:
 
-                    return _UpdateApplication();
+                    return _Update();
             }
 
             return false;
@@ -110,19 +133,15 @@ namespace DVLDBusiness
 
         static public clsApplication Find(int ApplicationID)
         {
-            int ApplicantPersonID = -1, ApplicationTypeID = -1, CreatedByUserID = -1;
+            clsApplicationDataAccess.clsApplicationData ApplicationData = new clsApplicationDataAccess.clsApplicationData();
 
-            DateTime ApplicationDate = DateTime.MinValue, LastStatusDate = DateTime.MinValue;
+            ApplicationData.ApplicationID = ApplicationID;
 
-            short ApplicationStatus = 0;
-
-            float PaidFees = 0;
-
-            if (clsApplicationDataAccess.GetApplicationByID(ref ApplicationID, ref ApplicantPersonID, ref ApplicationDate,
-               ref ApplicationTypeID, ref ApplicationStatus, ref LastStatusDate, ref PaidFees, ref CreatedByUserID))
+            if (clsApplicationDataAccess.GetApplicationByID(ApplicationData))
             {
-                return new clsApplication(ApplicationID, clsPerson.Find(ApplicantPersonID), ApplicationDate, clsApplicationType.Find(ApplicationTypeID),
-                   (enApplicationStatus)ApplicationStatus, LastStatusDate, PaidFees, clsUser.Find(CreatedByUserID));
+                return new clsApplication(ApplicationID, clsPerson.Find(ApplicationData.ApplicantPersonID), ApplicationData.ApplicationDate,
+                    clsApplicationType.Find((clsApplicationType.enApplicationTypeID)ApplicationData.ApplicationTypeID),
+                   (enApplicationStatus)ApplicationData.ApplicationStatus, ApplicationData.LastStatusDate, ApplicationData.PaidFees, clsUser.Find(ApplicationData.CreatedByUserID));
             }
             else
             {
@@ -143,6 +162,16 @@ namespace DVLDBusiness
         static public bool IsCompleted(int ApplicationID)
         {
             return clsApplicationDataAccess.IsApplicationCompleted(ApplicationID);
+        }
+
+        public static DataTable GetApplications()
+        {
+            return clsApplicationDataAccess.GetApplications();
+        }
+
+        public static DataTable GetApplications(string Value, string FieldName)
+        {
+            return clsApplicationDataAccess.GetApplications(new clsDataTypes.clsFilterData(Value, FieldName));
         }
     }
 }

@@ -34,6 +34,7 @@
             this.guna2Button3 = new Guna.UI2.WinForms.Guna2Button();
             this.btnRegisteredUserAccount = new Guna.UI2.WinForms.Guna2Button();
             this.guna2Panel1 = new Guna.UI2.WinForms.Guna2Panel();
+            this.btnApplicationTab = new Guna.UI2.WinForms.Guna2Button();
             this.btnDriversTab = new Guna.UI2.WinForms.Guna2Button();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnAccountInfo = new Guna.UI2.WinForms.Guna2Button();
@@ -141,6 +142,7 @@
             // guna2Panel1
             // 
             this.guna2Panel1.BackColor = System.Drawing.Color.White;
+            this.guna2Panel1.Controls.Add(this.btnApplicationTab);
             this.guna2Panel1.Controls.Add(this.btnDriversTab);
             this.guna2Panel1.Controls.Add(this.btnRegisteredUserAccount);
             this.guna2Panel1.Controls.Add(this.btnPeopleTab);
@@ -151,6 +153,29 @@
             this.guna2Panel1.Name = "guna2Panel1";
             this.guna2Panel1.Size = new System.Drawing.Size(1263, 67);
             this.guna2Panel1.TabIndex = 6;
+            // 
+            // btnApplicationTab
+            // 
+            this.btnApplicationTab.BackColor = System.Drawing.Color.Transparent;
+            this.btnApplicationTab.ButtonMode = Guna.UI2.WinForms.Enums.ButtonMode.RadioButton;
+            this.btnApplicationTab.CheckedState.FillColor = System.Drawing.Color.Silver;
+            this.btnApplicationTab.CheckedState.ForeColor = System.Drawing.Color.White;
+            this.btnApplicationTab.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnApplicationTab.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnApplicationTab.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnApplicationTab.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnApplicationTab.FillColor = System.Drawing.Color.White;
+            this.btnApplicationTab.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.btnApplicationTab.ForeColor = System.Drawing.Color.Gray;
+            this.btnApplicationTab.Image = ((System.Drawing.Image)(resources.GetObject("btnApplicationTab.Image")));
+            this.btnApplicationTab.ImageOffset = new System.Drawing.Point(-3, 0);
+            this.btnApplicationTab.ImageSize = new System.Drawing.Size(25, 25);
+            this.btnApplicationTab.Location = new System.Drawing.Point(520, 12);
+            this.btnApplicationTab.Name = "btnApplicationTab";
+            this.btnApplicationTab.Size = new System.Drawing.Size(146, 43);
+            this.btnApplicationTab.TabIndex = 6;
+            this.btnApplicationTab.Text = "Applications";
+            this.btnApplicationTab.Click += new System.EventHandler(this.btnApplicationTab_Click);
             // 
             // btnDriversTab
             // 
@@ -291,6 +316,7 @@
         private Guna.UI2.WinForms.Guna2Button btnAccountInfo;
         private Guna.UI2.WinForms.Guna2Button btnChangePassword;
         private Guna.UI2.WinForms.Guna2Button btnSignOut;
+        private Guna.UI2.WinForms.Guna2Button btnApplicationTab;
     }
 }
 

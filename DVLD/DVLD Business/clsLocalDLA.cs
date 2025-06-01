@@ -5,19 +5,20 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dotools;
 
 namespace DVLDBusiness
 {
     public class clsLocalDLA : clsApplication
     {
-        public int LocalDLAID {  get; set; }
+        public int? LocalDLAID {  get; set; }
         public clsLicenseClass LicenseClass { get; set; }
         public short PassedTests { get; private set; }
         public short CurrentTestTrials { get; set; }
         public clsTestType CurrentTestType { get; set; }
 
         public clsLocalDLA(clsPerson ApplicantPerson, clsUser CreatedByUser) 
-            : base(ApplicantPerson, clsApplicationType.Find(1), CreatedByUser)
+            : base(ApplicantPerson, clsApplicationType.Find(clsApplicationType.enApplicationTypeID.NewLocalDrivingLicenseService), CreatedByUser)
         {
             this.LocalDLAID = -1;
             this.LicenseClass = null;
@@ -38,13 +39,33 @@ namespace DVLDBusiness
             Mode = enMode.Update;
         }
 
+        private clsLocalDLA(clsLocalDLADataAccess.clsLocalDrivingLicenseApplicationData LocalDrivingLicenseApplicationData)
+            : base(clsApplication.Find(LocalDrivingLicenseApplicationData.ApplicationID))
+        {
+            this.LocalDLAID = LocalDrivingLicenseApplicationData.LocalDrivingLicenseApplicationID.Value;
+            this.LicenseClass = clsLicenseClass.Find((clsLicenseClass.enLicenseClassID)LocalDrivingLicenseApplicationData.LicenseClassID);
+            this.PassedTests = LocalDrivingLicenseApplicationData.PassedTests;
+            this.CurrentTestTrials = LocalDrivingLicenseApplicationData.CurrentTestTrials;
+            this.CurrentTestType = clsTestType.Find((clsTestType.enTestTypeID)LocalDrivingLicenseApplicationData.CurrentTestTypeID);
+
+            Mode = enMode.Update;
+        }
+
         private bool _AddNewLocalDLA()
         {
-            if (base._AddNewApplication())
+            if (base._Add())
             {
-                this.LocalDLAID = clsLocalDLADataAccess.AddNewLocalDLA(this.ApplicationID, this.LicenseClass.LicenseClassID);
+                clsLocalDLADataAccess.clsLocalDrivingLicenseApplicationData LocalDrivingLicenseApplicationData
+                = new clsLocalDLADataAccess.clsLocalDrivingLicenseApplicationData()
+                {
+                    LocalDrivingLicenseApplicationID = null,
+                    ApplicationID = this.ApplicationID.Value,
+                    LicenseClassID = Convert.ToInt32(this.LicenseClass.LicenseClassID)
+                };
 
-                return this.LocalDLAID != -1;
+                this.LocalDLAID = clsLocalDLADataAccess.AddNew(LocalDrivingLicenseApplicationData);
+
+                return (LocalDLAID != -1);
             }
 
             return false;
@@ -52,9 +73,17 @@ namespace DVLDBusiness
 
         private bool _UpdateLocalDLA()
         {
-            if (base._UpdateApplication())
+            if (base._Update())
             {
-                return clsLocalDLADataAccess.UpdateLocalDLA(this.LocalDLAID, this.ApplicationID, this.LicenseClass.LicenseClassID);
+                clsLocalDLADataAccess.clsLocalDrivingLicenseApplicationData LocalDrivingLicenseApplicationData
+                = new clsLocalDLADataAccess.clsLocalDrivingLicenseApplicationData()
+                {
+                    LocalDrivingLicenseApplicationID = this.LocalDLAID,
+                    ApplicationID = this.ApplicationID.Value,
+                    LicenseClassID = Convert.ToInt32(this.LicenseClass.LicenseClassID)
+                };
+
+                return clsLocalDLADataAccess.Update(LocalDrivingLicenseApplicationData);
             }
 
             return false;
@@ -84,22 +113,64 @@ namespace DVLDBusiness
             return false;
         }
 
+        public bool DoesAttendTestType(clsTestType.enTestTypeID TestType)
+        {
+            return clsLocalDLADataAccess.DoesAttendTestType(this.LocalDLAID.Value, Convert.ToInt32(TestType));
+        }
+
+        public bool DoesPassTestType(clsTestType.enTestTypeID TestType)
+        {
+            return clsLocalDLADataAccess.DoesPassTestType(this.LocalDLAID.Value, Convert.ToInt32(TestType));
+        }
+
+        public byte TotalTrialsPerTest(clsTestType.enTestTypeID TestType)
+        {
+            return clsLocalDLADataAccess.TotalTrialsPerTest(this.LocalDLAID.Value, Convert.ToInt32(TestType));
+        }
+
         static public new clsLocalDLA Find(int LocalDLAID)
         {
-            int LicenseClassID = -1;
-            int ApplicationID = -1;
-            int CurrentTestTypeID = -1;
+            clsLocalDLADataAccess.clsLocalDrivingLicenseApplicationData LocalDrivingLicenseApplicationData
+                = new clsLocalDLADataAccess.clsLocalDrivingLicenseApplicationData();
 
-            short PassedTests = 0, CurrentTestTrials = 0;
+            LocalDrivingLicenseApplicationData.LocalDrivingLicenseApplicationID = LocalDLAID;
 
-            if (clsLocalDLADataAccess.GetLocalDLAByID(ref LocalDLAID, ref ApplicationID, ref LicenseClassID, ref PassedTests, ref CurrentTestTrials, ref CurrentTestTypeID))
+            if (clsLocalDLADataAccess.GetLocalDLAByID(LocalDrivingLicenseApplicationData))
             {
-                return new clsLocalDLA(LocalDLAID, clsLicenseClass.Find(LicenseClassID), PassedTests, CurrentTestTrials, clsTestType.Find(CurrentTestTypeID), clsApplication.Find(ApplicationID));
+                return new clsLocalDLA(LocalDrivingLicenseApplicationData);
             }
             else
             {
                 return null;
             }
+        }
+
+        static public  clsLocalDLA FindByApplicationID(int ApplicationID)
+        {
+            clsLocalDLADataAccess.clsLocalDrivingLicenseApplicationData LocalDrivingLicenseApplicationData
+                = new clsLocalDLADataAccess.clsLocalDrivingLicenseApplicationData();
+
+            LocalDrivingLicenseApplicationData.ApplicationID = ApplicationID;
+
+            if (clsLocalDLADataAccess.GetLocalDLAByApplicationID(LocalDrivingLicenseApplicationData))
+            {
+                return new clsLocalDLA(LocalDrivingLicenseApplicationData);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        static public bool DoesAttendTestType(int LocalDLAID, clsTestType.enTestTypeID TestType)
+        {
+            return clsLocalDLADataAccess.DoesAttendTestType(LocalDLAID, Convert.ToInt32(TestType));
+        }
+
+        static public byte TotalTrialsPerTest(int LocalDLAID, clsTestType.enTestTypeID TestType)
+        {
+            return clsLocalDLADataAccess.TotalTrialsPerTest(LocalDLAID, Convert.ToInt32(TestType));
         }
 
         static public int GetApplicationID(int LocalDLAID)
@@ -112,19 +183,19 @@ namespace DVLDBusiness
             return clsLocalDLADataAccess.IsLocalDLAExist(LocalDLAID);
         }
 
-        static public bool IsApplicationRequiredOrCompleted(int ApplicantPersonID, int LicenseClassID)
+        static public bool IsApplicationRequiredOrCompleted(int ApplicantPersonID, clsLicenseClass.enLicenseClassID LicenseClassID)
         {
-            return clsLocalDLADataAccess.IsApplicationRequiredOrCompleted(ApplicantPersonID, LicenseClassID);
+            return clsLocalDLADataAccess.IsApplicationRequiredOrCompleted(ApplicantPersonID, Convert.ToInt32(LicenseClassID));
         }
 
         static public bool Delete(int LocalDLAID)
         {
-            return clsLocalDLADataAccess.DeleteLocalDLA(LocalDLAID);
+            return clsLocalDLADataAccess.Delete(LocalDLAID);
         }
 
         static public new bool CancelApplication(int LocalDLAID)
         {
-            return clsApplication.CancelApplication(clsLocalDLA.Find(LocalDLAID).ApplicationID);
+            return clsApplication.CancelApplication(clsLocalDLA.Find(LocalDLAID).ApplicationID.Value);
         }
 
         static public new bool IsCancelled(int LocalDLAID)
@@ -137,9 +208,14 @@ namespace DVLDBusiness
             return clsApplication.IsCompleted(GetApplicationID(LocalDLAID));
         }
 
-        static public DataTable GetLDLApplications(string ColumnName = "", string Filter = "")
+        static public DataTable GetLDLApplications()
         {
-            return clsLocalDLADataAccess.GetAllLocalDLA(ColumnName, Filter);
+            return clsLocalDLADataAccess.GetAllLocalDLA();
+        }
+
+        static public DataTable GetLDLApplications(string Value, string FieldName)
+        {
+            return clsLocalDLADataAccess.GetAllLocalDLA(new clsDataTypes.clsFilterData(Value, FieldName));
         }
     }
 }
